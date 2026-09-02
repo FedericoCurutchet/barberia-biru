@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model barbero {
+  id     BigInt  @id @default(autoincrement())
+  nombre String
+  activo Boolean @default(true)
+  corte  corte[]
+  turno  turno[]
+}
+
+model corte {
+  id          BigInt    @id @default(autoincrement())
+  cliente     String
+  monto       Decimal
+  hora        DateTime
+  tipoCorteId BigInt
+  barberoId   BigInt
+  barbero     barbero   @relation(fields: [barberoId], references: [id], map: "Corte_barberoId_fkey")
+  tipocorte   tipocorte @relation(fields: [tipoCorteId], references: [id], map: "Corte_tipoCorteId_fkey")
+
+  @@index([barberoId], map: "Corte_barberoId_fkey")
+  @@index([tipoCorteId], map: "Corte_tipoCorteId_fkey")
+}
+
+model tipocorte {
+  id     BigInt  @id @default(autoincrement())
+  nombre String  @unique(map: "tipoCorte_nombre_key")
+  corte  corte[]
+}
+
+model turno {
+  id        BigInt   @id @default(autoincrement())
+  cliente   String
+  barberoId BigInt
+  hora      DateTime
+  barbero   barbero  @relation(fields: [barberoId], references: [id], map: "Turno_barberoId_fkey")
+
+  @@index([barberoId], map: "Turno_barberoId_fkey")
+}
+
+model usuario {
+  id            BigInt @id @default(autoincrement())
+  contrasena    String
+  nombre        String
+  nombreUsuario String @unique(map: "Usuario_nombreUsuario_key")
+}
