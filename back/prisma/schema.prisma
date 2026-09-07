@@ -9,7 +9,7 @@ datasource db {
 
 model barbero {
   id     BigInt  @id @default(autoincrement())
-  nombre String
+  nombre String  @unique @db.VarChar(255)
   activo Boolean @default(true)
   corte  corte[]
   turno  turno[]
@@ -17,9 +17,9 @@ model barbero {
 
 model corte {
   id          BigInt    @id @default(autoincrement())
-  cliente     String
-  monto       Decimal
-  hora        DateTime
+  cliente     String   @db.VarChar(255)
+  monto       Decimal  
+  hora        DateTime? @default(now())
   tipoCorteId BigInt
   barberoId   BigInt
   barbero     barbero   @relation(fields: [barberoId], references: [id], map: "Corte_barberoId_fkey")
@@ -32,6 +32,7 @@ model corte {
 model tipocorte {
   id     BigInt  @id @default(autoincrement())
   nombre String  @unique(map: "tipoCorte_nombre_key")
+  activo Boolean @default(true)
   corte  corte[]
 }
 
@@ -40,7 +41,8 @@ model turno {
   cliente   String
   barberoId BigInt
   hora      DateTime
-  barbero   barbero  @relation(fields: [barberoId], references: [id], map: "Turno_barberoId_fkey")
+  barbero   barbero  @relation(fields: [barberoId], references: [id], map: "Turno_barberoId_fkey", onDelete: Cascade )
+  
 
   @@index([barberoId], map: "Turno_barberoId_fkey")
 }
