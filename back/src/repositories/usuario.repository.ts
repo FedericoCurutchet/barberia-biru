@@ -5,12 +5,14 @@ export class UsuarioRepository {
     nombre: string,
     contrasena: string,
     nombre_usuario: string,
+    email: string,
   ) {
     const result = await prisma.usuario.create({
       data: {
         nombre: nombre,
         contrasena: contrasena,
         nombreUsuario: nombre_usuario,
+        email: email,
       },
     });
 
