@@ -1,10 +1,12 @@
+import Decimal from "decimal.js";
 import { prisma } from "../config/prisma";
 
 export class BarberoRepository {
-  async crearBarbero(nombre: string) {
+  async crearBarbero(nombre: string, comision?: Decimal) {
     const result = await prisma.barbero.create({
       data: {
         nombre: nombre,
+        comision: comision,
       },
     });
 
@@ -20,7 +22,12 @@ export class BarberoRepository {
     return result;
   }
 
-  async editarBarbero(id: number, activo?: boolean, nombre?: string) {
+  async editarBarbero(
+    id: number,
+    activo?: boolean,
+    nombre?: string,
+    comision?: Decimal,
+  ) {
     const result = await prisma.barbero.update({
       where: {
         id: id,
@@ -28,6 +35,7 @@ export class BarberoRepository {
       data: {
         nombre: nombre,
         activo: activo,
+        comision: comision,
       },
     });
     return result;
@@ -37,6 +45,16 @@ export class BarberoRepository {
     const result = await prisma.barbero.delete({
       where: {
         id: id,
+      },
+    });
+
+    return result;
+  }
+
+  async obtenerBarberosActivos() {
+    const result = await prisma.barbero.findMany({
+      where: {
+        activo: true,
       },
     });
 

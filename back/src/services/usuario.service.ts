@@ -7,11 +7,13 @@ export class UsuarioService {
     nombre: string,
     contrasena: string,
     nombre_usuario: string,
+    email: string,
   ) {
     const result = await this.usuarioRepository.crearUsuario(
       nombre,
       contrasena,
       nombre_usuario,
+      email,
     );
     if (!result) {
       throw new Error("Error al crear el usuario.");

@@ -10,8 +10,8 @@ export class BarberoController {
 
   public crearBarbero = async (req: Request, res: Response) => {
     try {
-      const { nombre } = req.body;
-      const barbero = await barberoService.crearBarbero(nombre);
+      const { nombre, comision } = req.body;
+      const barbero = await barberoService.crearBarbero(nombre, comision);
 
       return res.status(200).json(barbero);
     } catch (error) {
@@ -51,7 +51,20 @@ export class BarberoController {
       return res.status(200).json(barbero);
     } catch (error) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al crear al barbero" });
+      res.status(500).json({ message: "Hubo un error al borrar al barbero" });
+    }
+  };
+
+  public obtenerBarberosActivos = async (req: Request, res: Response) => {
+    try {
+      const barberos = await barberoService.obtenerBarberosActivos();
+
+      return res.status(200).json(barberos);
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .json({ message: "Hubo un error al obtener los barberos." });
     }
   };
 }

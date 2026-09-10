@@ -1,10 +1,11 @@
+import Decimal from "decimal.js";
 import { BarberoRepository } from "../repositories/barbero.repository";
 
 export class BarberoSerivce {
   constructor(private barberoRepository: BarberoRepository) {}
 
-  async crearBarbero(nombre: string) {
-    const result = await this.barberoRepository.crearBarbero(nombre);
+  async crearBarbero(nombre: string, comision: Decimal) {
+    const result = await this.barberoRepository.crearBarbero(nombre, comision);
     if (!result) {
       throw new Error("Error al crear el barbero.");
     }

@@ -5,16 +5,20 @@ export class CorteRepository {
   async crearCorte(
     cliente: string,
     monto: Decimal,
-    tipoCorteId: number,
+    montoBarberia: Decimal,
+    comisionBarbero: Decimal,
     barberoId: number,
+    metodoPago: string,
     hora?: Date,
   ) {
     const result = await prisma.corte.create({
       data: {
         cliente: cliente,
         monto: monto,
-        tipoCorteId: tipoCorteId,
+        comisionBarbero: comisionBarbero,
+        montoBarberia: montoBarberia,
         barberoId: barberoId,
+        metodoPago: metodoPago,
         hora: hora ?? new Date(),
       },
     });
@@ -25,7 +29,8 @@ export class CorteRepository {
     id: number,
     cliente?: string,
     monto?: Decimal,
-    tipoCorteId?: number,
+    montoBarberia?: Decimal,
+    comisionBarbero?: Decimal,
     barberoId?: number,
     hora?: Date,
   ) {
@@ -34,7 +39,8 @@ export class CorteRepository {
       data: {
         cliente: cliente,
         monto: monto,
-        tipoCorteId: tipoCorteId,
+        montoBarberia: montoBarberia,
+        comisionBarbero: comisionBarbero,
         barberoId: barberoId,
         hora: hora ?? new Date(),
       },
@@ -65,8 +71,41 @@ export class CorteRepository {
       where: {
         barberoId: barberoId,
       },
+      include: { barbero: true },
     });
 
+    return result;
+  }
+
+  async obtenerResumenBarbero(fecha_incio: Date, fecha_final: Date) {
+    const result = await prisma.corte.groupBy({
+      by: ["barberoId"],
+      where: {
+        hora: {
+          gte: fecha_incio,
+          lte: fecha_final,
+        },
+      },
+      _sum: {
+        monto: true,
+        comisionBarbero: true,
+      },
+      _count: {
+        id: true,
+      },
+    });
+    return result;
+  }
+
+  async obtenerTotalCortes(fecha_incio: Date, fecha_final: Date) {
+    const result = await prisma.corte.aggregate({
+      where: { hora: { gte: fecha_incio, lte: fecha_final } },
+      _sum: {
+        monto: true,
+        montoBarberia: true,
+        comisionBarbero: true,
+      },
+    });
     return result;
   }
 }

@@ -8,11 +8,12 @@ export class UsuarioController {
   constructor() {}
   public crearUsuario = async (req: Request, res: Response) => {
     try {
-      const { nombre, contrasena, nombre_usuario } = req.body;
+      const { nombre, contrasena, nombre_usuario, email } = req.body;
       const usuario = await usuarioService.crearUsuario(
         nombre,
         contrasena,
         nombre_usuario,
+        email,
       );
       res.status(200).json(usuario);
     } catch (err) {
