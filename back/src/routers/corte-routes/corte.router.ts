@@ -17,6 +17,16 @@ corteRouter.get(
   corteController.obtenerResumenTotal.bind(corteController),
 );
 
+corteRouter.get(
+  "",
+  corteController.obtenerTodosLosCortes.bind(corteController),
+);
+
+corteRouter.get(
+  "/cortesMes",
+  corteController.obtenerTodosLosCortesPorFecha.bind(corteController),
+);
+
 corteRouter.delete("", corteController.borrarCorte.bind(corteController));
 
 export default corteRouter;

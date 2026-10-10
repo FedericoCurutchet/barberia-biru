@@ -42,4 +42,13 @@ export class BarberoSerivce {
 
     return result;
   }
+
+  async obtenerBarberosActivos() {
+    const result = await this.barberoRepository.obtenerBarberosActivos();
+    if (!result) {
+      throw new Error("Error al obteneros los barberos.");
+    }
+
+    return result;
+  }
 }

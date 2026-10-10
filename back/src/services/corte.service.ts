@@ -159,4 +159,35 @@ export class CorteService {
 
     return monto;
   }
+
+  async obtenerTodosLosCortesPorFecha(
+    fecha_incio_string: string,
+    fecha_final_string: string,
+  ) {
+    const [anioInicio, mesInicio, diaInicio] = fecha_incio_string
+      .split("-")
+      .map(Number);
+    const fecha_inicio = new Date(
+      anioInicio,
+      mesInicio - 1,
+      diaInicio,
+      0,
+      0,
+      0,
+      0,
+    );
+
+    const [anioFin, mesFin, diaFin] = fecha_final_string.split("-").map(Number);
+    const fecha_final = new Date(anioFin, mesFin - 1, diaFin, 23, 59, 59, 999);
+
+    const result = await this.corteRepository.obtenerTodosLosCortesPorFecha(
+      fecha_inicio,
+      fecha_final,
+    );
+    if (!result) {
+      throw new Error("Error al obtener todos los cortes.");
+    }
+
+    return result;
+  }
 }
