@@ -42,13 +42,22 @@ export class CorteController {
 
   public editarCorte = async (req: Request, res: Response) => {
     try {
-      const { id, cliente, monto, tipoCorteId, barberoId, hora } = req.body;
+      const {
+        id,
+        cliente,
+        monto,
+        montoBarberia,
+        comisionBarbero,
+        barberoId,
+        hora,
+      } = req.body;
 
       const corte = await corteService.edtiarCorte(
         id,
         cliente,
         monto,
-        tipoCorteId,
+        montoBarberia,
+        comisionBarbero,
         barberoId,
         hora,
       );
@@ -89,6 +98,35 @@ export class CorteController {
     try {
       const { fecha_inicio, fecha_final } = req.query;
       const resumen = await corteService.obtenerResumenTotal(
+        String(fecha_inicio),
+        String(fecha_final),
+      );
+
+      return res.status(200).json(resumen);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+    }
+  };
+
+  public obtenerTodosLosCortes = async (req: Request, res: Response) => {
+    try {
+      const resumen = await corteService.obtenerTotalCortes();
+
+      return res.status(200).json(resumen);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+    }
+  };
+
+  public obtenerTodosLosCortesPorFecha = async (
+    req: Request,
+    res: Response,
+  ) => {
+    try {
+      const { fecha_inicio, fecha_final } = req.query;
+      const resumen = await corteService.obtenerTodosLosCortesPorFecha(
         String(fecha_inicio),
         String(fecha_final),
       );
