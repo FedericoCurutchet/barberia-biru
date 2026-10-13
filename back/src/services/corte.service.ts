@@ -160,6 +160,73 @@ export class CorteService {
     return monto;
   }
 
+  async obtenerCortesPorDia() {
+    const fecha_inicio = new Date();
+    fecha_inicio.setHours(0, 0, 0, 0);
+    const fecha_final = new Date();
+    fecha_final.setHours(23, 59, 59, 999);
+    const result = await this.corteRepository.obtenerTodosLosCortesPorFecha(
+      fecha_inicio,
+      fecha_final,
+    );
+    if (!result) {
+      throw new Error("Error al obtener todos los cortes.");
+    }
+
+    return result;
+  }
+
+  async obtenerCortesPorSemanaActual() {
+    const fecha_inicio = new Date();
+
+    let diaDeSemana = fecha_inicio.getDay();
+    let diaInicioSemana = fecha_inicio.getDate() - diaDeSemana;
+    fecha_inicio.setDate(diaInicioSemana);
+
+    const fecha_final = new Date();
+    let diasFinalSemana = this.calcularDiasFinalSemana(fecha_final.getDay());
+    let dias = fecha_final.getDate() + diasFinalSemana;
+    fecha_final.setDate(dias);
+
+    fecha_inicio.setHours(0, 0, 0, 0);
+
+    console.log("fecha-inicio" + fecha_inicio);
+    console.log("fecha-final" + fecha_final);
+    const result = await this.corteRepository.obtenerTodosLosCortesPorFecha(
+      fecha_inicio,
+      fecha_final,
+    );
+    if (!result) {
+      throw new Error("Error al obtener todos los cortes.");
+    }
+
+    return result;
+  }
+
+  async obtenerTodosLosCortesPorMes(mes: number) {
+    const fecha_inicio = new Date();
+
+    fecha_inicio.setMonth(mes);
+    fecha_inicio.setDate(1);
+    fecha_inicio.setHours(0, 0, 0, 0);
+
+    const fecha_final = new Date();
+
+    fecha_final.setMonth(mes + 1);
+    fecha_final.setDate(0);
+    fecha_final.setHours(23, 59, 59, 999);
+
+    const result = await this.corteRepository.obtenerTodosLosCortesPorFecha(
+      fecha_inicio,
+      fecha_final,
+    );
+    if (!result) {
+      throw new Error("Error al obtener todos los cortes.");
+    }
+
+    return result;
+  }
+
   async obtenerTodosLosCortesPorFecha(
     fecha_incio_string: string,
     fecha_final_string: string,
@@ -177,9 +244,24 @@ export class CorteService {
       0,
     );
 
+    this.obtenerCortesPorSemanaActual();
+
     const [anioFin, mesFin, diaFin] = fecha_final_string.split("-").map(Number);
     const fecha_final = new Date(anioFin, mesFin - 1, diaFin, 23, 59, 59, 999);
 
+    let prueba = this.calcularDiasFinalSemana(fecha_inicio.getDay());
+    console.log("aca el dia de hoy" + fecha_inicio.getDate());
+    let otraPrueba = new Date();
+
+    let pruebaCaluclar = fecha_inicio.getDate() + prueba;
+    otraPrueba.setDate(pruebaCaluclar);
+
+    let pruebaFinal = new Date();
+    let pruebaFinalCalcular = pruebaFinal.getDay();
+    let pruebaCaluclarFINAL2 = fecha_inicio.getDate() - pruebaFinalCalcular;
+    pruebaFinal.setDate(pruebaCaluclarFINAL2);
+
+    console.log("aca en teoria la  fecha Inicial" + otraPrueba);
     const result = await this.corteRepository.obtenerTodosLosCortesPorFecha(
       fecha_inicio,
       fecha_final,
@@ -189,5 +271,17 @@ export class CorteService {
     }
 
     return result;
+  }
+
+  private calcularDiasFinalSemana(dia: number) {
+    let diasFaltantes = 0;
+
+    if (6 - dia > 0) {
+      diasFaltantes = 6 - dia;
+    } else {
+      diasFaltantes = 0;
+    }
+
+    return diasFaltantes;
   }
 }

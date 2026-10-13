@@ -137,4 +137,42 @@ export class CorteController {
       res.status(500).json({ message: "Hubo un error al buscar el resumen" });
     }
   };
+
+  public obtenerCortesPorDia = async (req: Request, res: Response) => {
+    try {
+      const resumen = await corteService.obtenerCortesPorDia();
+
+      return res.status(200).json(resumen);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+    }
+  };
+
+  public obtenerCortesPorSemanaActual = async (req: Request, res: Response) => {
+    try {
+      const resumen = await corteService.obtenerCortesPorSemanaActual();
+
+      return res.status(200).json(resumen);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+    }
+  };
+
+  public obtenerTodosLosCortesPorMes = async (req: Request, res: Response) => {
+    try {
+      const { mes } = req.query;
+      const resumen = await corteService.obtenerTodosLosCortesPorMes(
+        Number(mes),
+      );
+
+      console.log(resumen);
+
+      return res.status(200).json(resumen);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+    }
+  };
 }

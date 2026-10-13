@@ -26,6 +26,18 @@ corteRouter.get(
   "/cortesMes",
   corteController.obtenerTodosLosCortesPorFecha.bind(corteController),
 );
+corteRouter.get(
+  "/cortesDia",
+  corteController.obtenerCortesPorDia.bind(corteController),
+);
+corteRouter.get(
+  "/cortesSemana",
+  corteController.obtenerCortesPorSemanaActual.bind(corteController),
+);
+corteRouter.get(
+  "/cortesDelMes",
+  corteController.obtenerTodosLosCortesPorMes.bind(corteController),
+);
 
 corteRouter.delete("", corteController.borrarCorte.bind(corteController));
 
