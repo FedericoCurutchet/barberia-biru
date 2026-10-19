@@ -138,6 +138,9 @@ export class CorteRepository {
         },
       },
       include: { barbero: true },
+      orderBy: {
+        hora: "asc",
+      },
     });
     return result;
   }

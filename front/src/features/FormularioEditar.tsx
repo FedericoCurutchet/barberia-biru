@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { CorteItem } from "../types/CorteItem";
 
 import type { CorteResponse } from "../types/CorteResponse";
+import { format } from "@formkit/tempo";
 
 export function FormularioEditar({
   isOpen,
@@ -26,7 +27,7 @@ export function FormularioEditar({
       monto: Number(formData.get("monto")),
       metodoPago: formData.get("metodoPago"),
       barberoId: Number(formData.get("barbero")),
-      hora: formatearHora(formData.get("hora")),
+      hora: formatearHora(formData.get("hora"), formData.get("dia")),
     };
 
     try {
@@ -48,10 +49,19 @@ export function FormularioEditar({
     }
   }
 
-  function formatearHora(hora: string) {
+  function formatearHora(hora: string, fecha: string) {
     const horaNueva = new Date();
+    const fechaNueva = formatearFechaForm(fecha);
+    horaNueva.setDate(datosForm.hora.getDate());
     const [horas, minutos] = hora.split(":");
     horaNueva.setHours(parseInt(horas), parseInt(minutos), 0, 0);
+    horaNueva.setFullYear(
+      fechaNueva.getFullYear(),
+      fechaNueva.getMonth(),
+      fechaNueva.getDate(),
+    );
+    console.log(horaNueva.toISOString());
+
     return horaNueva.toISOString();
   }
 
@@ -60,7 +70,21 @@ export function FormularioEditar({
     const minutos = String(hora.getMinutes()).padStart(2, "0");
     const horaString = horas + ":" + minutos;
     console.log(horaString);
+
     return horaString;
+  }
+
+  function formatearFecha(fecha: Date) {
+    const d = new Date(fecha);
+    return d.toISOString().split("T")[0];
+  }
+
+  function formatearFechaForm(fecha: string) {
+    const [anio, mes, dia] = fecha.split("-").map(Number);
+
+    // 2. Creamos el objeto Date usando hora local (restando 1 al mes)
+    const fechaObjeto = new Date(anio, mes - 1, dia);
+    return fechaObjeto;
   }
 
   const actualizarTabla = (element: CorteResponse) => {
@@ -189,6 +213,23 @@ export function FormularioEditar({
                 id="hora"
                 required
                 defaultValue={formatearHoraInput(dataFormulario.hora)}
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="Dia"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
+                Dia del Corte
+              </label>
+              <input
+                type="date"
+                name="dia"
+                id="dia"
+                required
+                defaultValue={formatearFecha(dataFormulario.hora)}
                 className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
               />
             </div>

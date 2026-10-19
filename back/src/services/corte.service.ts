@@ -56,12 +56,28 @@ export class CorteService {
     hora_string?: string,
   ) {
     const hora = new Date(hora_string ?? new Date());
+    let comisionBarberoNueva = comisionBarbero;
+    let montoBarberiaNueva = montoBarberia;
+
+    if (monto) {
+      let barbero = await this.barberoService.obtenerBarbero(Number(barberoId));
+      if (barbero == null) {
+        throw new Error("No se enconro al barbero");
+      }
+      let comision = barbero.comision;
+      comisionBarberoNueva = this.calcularComisionBarbero(monto, comision);
+      montoBarberiaNueva = this.calcularMontoBarberia(
+        monto,
+        comisionBarberoNueva,
+      );
+    }
+
     const result = await this.corteRepository.editarCorte(
       id,
       cliente,
       monto,
-      montoBarberia,
-      comisionBarbero,
+      montoBarberiaNueva,
+      comisionBarberoNueva,
       barberoId,
       hora,
     );
