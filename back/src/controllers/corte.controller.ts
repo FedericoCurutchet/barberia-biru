@@ -175,4 +175,76 @@ export class CorteController {
       res.status(500).json({ message: "Hubo un error al buscar el resumen" });
     }
   };
+
+  public obtenerResumenBarberoDia = async (req: Request, res: Response) => {
+    try {
+      const resumen = await corteService.obtenerResumenBarberoDia();
+
+      return res.status(200).json(resumen);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+    }
+  };
+
+  public obtenerResumenBarberoSemana = async (req: Request, res: Response) => {
+    try {
+      const resumen = await corteService.obtenerResumenBarberoSemana();
+
+      return res.status(200).json(resumen);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+    }
+  };
+
+  public obtenerResumenBarberoMes = async (req: Request, res: Response) => {
+    try {
+      const { mes } = req.query;
+      const resumen = await corteService.obtenerResumenBarberoMes(Number(mes));
+
+      console.log(resumen);
+
+      return res.status(200).json(resumen);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+    }
+  };
+
+  public obtenerResumenTotalDia = async (req: Request, res: Response) => {
+    try {
+      const resumen = await corteService.obtenerResumenTotalDia();
+
+      return res.status(200).json(resumen);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+    }
+  };
+
+  public obtenerResumenTotalSemana = async (req: Request, res: Response) => {
+    try {
+      const resumen = await corteService.obtenerResumenTotalSemana();
+
+      return res.status(200).json(resumen);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+    }
+  };
+
+  public obtenerResumenTotalMes = async (req: Request, res: Response) => {
+    try {
+      const { mes } = req.query;
+      const resumen = await corteService.obtenerResumenTotalMes(Number(mes));
+
+      console.log(resumen);
+
+      return res.status(200).json(resumen);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+    }
+  };
 }

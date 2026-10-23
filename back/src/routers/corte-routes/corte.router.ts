@@ -38,6 +38,30 @@ corteRouter.get(
   "/cortesDelMes",
   corteController.obtenerTodosLosCortesPorMes.bind(corteController),
 );
+corteRouter.get(
+  "/resumenTotalDia",
+  corteController.obtenerResumenTotalDia.bind(corteController),
+);
+corteRouter.get(
+  "/resumenTotalSemana",
+  corteController.obtenerResumenTotalSemana.bind(corteController),
+);
+corteRouter.get(
+  "/resumenTotalMes",
+  corteController.obtenerResumenTotalMes.bind(corteController),
+);
+corteRouter.get(
+  "/resumenBarberosDia",
+  corteController.obtenerResumenBarberoDia.bind(corteController),
+);
+corteRouter.get(
+  "/resumenBarberosSemana",
+  corteController.obtenerResumenBarberoSemana.bind(corteController),
+);
+corteRouter.get(
+  "/resumenBarberosMes",
+  corteController.obtenerResumenBarberoMes.bind(corteController),
+);
 
 corteRouter.delete("", corteController.borrarCorte.bind(corteController));
 

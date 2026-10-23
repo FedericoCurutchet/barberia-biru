@@ -102,17 +102,17 @@ export class CorteRepository {
     // });
     const result = await prisma.$queryRaw`
   SELECT
-    c.barberoId,
+    b.id AS barberoId,
     b.nombre,
-    SUM(c.monto) AS monto,
-    SUM(c.comisionBarbero) AS comisionBarbero,
+    COALESCE(SUM(c.monto), 0) AS monto,
+    COALESCE(SUM(c.comisionBarbero), 0) AS comisionBarbero,
     COUNT(c.id) AS cantidadCortes
-  FROM corte c
-  INNER JOIN barbero b
-    ON c.barberoId = b.id
-  WHERE c.hora >= ${fecha_incio}
+  FROM barbero b
+  LEFT JOIN corte c 
+    ON b.id = c.barberoId
+    AND c.hora >= ${fecha_incio}
     AND c.hora <= ${fecha_final}
-  GROUP BY c.barberoId, b.nombre
+  GROUP BY b.id, b.nombre
 `;
     return result;
   }

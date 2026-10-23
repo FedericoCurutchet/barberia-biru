@@ -6,6 +6,8 @@ import { Route, Routes } from "react-router";
 import { Prueba } from "./pages/Prueba.jsx";
 
 import { TablaCortes } from "./features/TablaCortes.js";
+import { Resumen } from "./pages/Resumen.jsx";
+import { Usuario } from "./pages/Usuario.jsx";
 
 function App() {
   return (
@@ -13,7 +15,7 @@ function App() {
       <Routes>
         <Route element={<DeshboardLayout></DeshboardLayout>}>
           <Route index element={<Home></Home>}></Route>
-          <Route path="/prueba" element={<Barberos></Barberos>}></Route>
+          <Route path="/barberos" element={<Barberos></Barberos>}></Route>
           <Route
             path="/editar"
             element={
@@ -22,8 +24,10 @@ function App() {
               ></TablaCortes>
             }
           ></Route>
+          <Route path="/resumen" element={<Resumen></Resumen>}></Route>
+          <Route path="/configuracion" element={<Barberos></Barberos>}></Route>
+          <Route path="/usuario" element={<Usuario></Usuario>}></Route>
         </Route>
-        <Route path="/marica" element={<Prueba></Prueba>}></Route>
       </Routes>
     </>
   );
