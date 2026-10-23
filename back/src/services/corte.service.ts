@@ -139,12 +139,148 @@ export class CorteService {
     return result;
   }
 
+  async obtenerResumenBarberoDia() {
+    const fecha_inicio = new Date();
+    fecha_inicio.setHours(0, 0, 0, 0);
+    const fecha_final = new Date();
+    fecha_final.setHours(23, 59, 59, 999);
+    const result = await this.corteRepository.obtenerResumenBarbero(
+      fecha_inicio,
+      fecha_final,
+    );
+    if (!result) {
+      throw new Error("Error al obtener todos los cortes.");
+    }
+
+    return result;
+  }
+
+  async obtenerResumenBarberoSemana() {
+    const fecha_inicio = new Date();
+
+    let diaDeSemana = fecha_inicio.getDay();
+    let diaInicioSemana = fecha_inicio.getDate() - diaDeSemana;
+    fecha_inicio.setDate(diaInicioSemana);
+
+    const fecha_final = new Date();
+    let diasFinalSemana = this.calcularDiasFinalSemana(fecha_final.getDay());
+    let dias = fecha_final.getDate() + diasFinalSemana;
+    fecha_final.setDate(dias);
+
+    fecha_inicio.setHours(0, 0, 0, 0);
+
+    console.log("fecha-inicio" + fecha_inicio);
+    console.log("fecha-final" + fecha_final);
+    const result = await this.corteRepository.obtenerResumenBarbero(
+      fecha_inicio,
+      fecha_final,
+    );
+
+    if (!result) {
+      throw new Error("Error al obtener todos los cortes.");
+    }
+
+    return result;
+  }
+
+  async obtenerResumenBarberoMes(mes: number) {
+    const fecha_inicio = new Date();
+
+    fecha_inicio.setMonth(mes);
+    fecha_inicio.setDate(1);
+    fecha_inicio.setHours(0, 0, 0, 0);
+
+    const fecha_final = new Date();
+
+    fecha_final.setMonth(mes + 1);
+    fecha_final.setDate(0);
+    fecha_final.setHours(23, 59, 59, 999);
+
+    const result = await this.corteRepository.obtenerResumenBarbero(
+      fecha_inicio,
+      fecha_final,
+    );
+    if (!result) {
+      throw new Error("Error al obtener todos los cortes.");
+    }
+
+    return result;
+  }
+
   async obtenerResumenTotal(
     fecha_incio_string: string,
     fecha_final_string: string,
   ) {
     const fecha_inicio = new Date(fecha_incio_string);
     const fecha_final = new Date(fecha_final_string);
+    const result = await this.corteRepository.obtenerTotalCortes(
+      fecha_inicio,
+      fecha_final,
+    );
+    if (!result) {
+      throw new Error("Error al obtener todos los cortes.");
+    }
+
+    return result;
+  }
+
+  async obtenerResumenTotalDia() {
+    const fecha_inicio = new Date();
+    fecha_inicio.setHours(0, 0, 0, 0);
+    const fecha_final = new Date();
+    fecha_final.setHours(23, 59, 59, 999);
+    const result = await this.corteRepository.obtenerTotalCortes(
+      fecha_inicio,
+      fecha_final,
+    );
+    if (!result) {
+      throw new Error("Error al obtener todos los cortes.");
+    }
+
+    return result;
+  }
+
+  async obtenerResumenTotalSemana() {
+    const fecha_inicio = new Date();
+
+    let diaDeSemana = fecha_inicio.getDay();
+    let diaInicioSemana = fecha_inicio.getDate() - diaDeSemana;
+    fecha_inicio.setDate(diaInicioSemana);
+
+    const fecha_final = new Date();
+    let diasFinalSemana = this.calcularDiasFinalSemana(fecha_final.getDay());
+    let dias = fecha_final.getDate() + diasFinalSemana;
+    fecha_final.setDate(dias);
+
+    fecha_inicio.setHours(0, 0, 0, 0);
+
+    console.log("fecha-inicio" + fecha_inicio);
+    console.log("fecha-final" + fecha_final);
+    const result = await this.corteRepository.obtenerTotalCortes(
+      fecha_inicio,
+      fecha_final,
+    );
+
+    if (!result) {
+      throw new Error("Error al obtener todos los cortes.");
+    }
+
+    return result;
+  }
+
+  async obtenerResumenTotalMes(mes: number) {
+    const fecha_inicio = new Date();
+
+    fecha_inicio.setMonth(mes);
+    fecha_inicio.setDate(1);
+    fecha_inicio.setHours(0, 0, 0, 0);
+
+    const fecha_final = new Date();
+
+    fecha_final.setMonth(mes + 1);
+    fecha_final.setDate(0);
+    fecha_final.setHours(23, 59, 59, 999);
+
     const result = await this.corteRepository.obtenerTotalCortes(
       fecha_inicio,
       fecha_final,
@@ -212,6 +348,7 @@ export class CorteService {
       fecha_inicio,
       fecha_final,
     );
+
     if (!result) {
       throw new Error("Error al obtener todos los cortes.");
     }

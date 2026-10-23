@@ -3,11 +3,10 @@ import { Link, NavLink } from "react-router";
 export function Sidebar() {
   const opciones = [
     { nombre: "Inicio", icono: "⌂", ruta: "/" },
-    { nombre: "Usuario", icono: "👤", ruta: "/editar" },
-    { nombre: "Funciones", icono: "⚙", ruta: "/pene" },
+    { nombre: "Usuario", icono: "👤", ruta: "/usuario" },
     { nombre: "Barberos", icono: "✂", ruta: "/barberos" },
     { nombre: "Resumen", icono: "📊", ruta: "/resumen" },
-    { nombre: "Configuración", icono: "⚙", ruta: "/marica" },
+    { nombre: "Configuración", icono: "⚙", ruta: "/configuracion" },
   ];
 
   return (
