@@ -60,4 +60,10 @@ export class BarberoRepository {
 
     return result;
   }
+
+  async obtenerTodosLosBarberos() {
+    const result = await prisma.barbero.findMany({});
+
+    return result;
+  }
 }

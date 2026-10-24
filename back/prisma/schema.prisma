@@ -54,3 +54,10 @@ model usuario {
   nombre        String
   nombreUsuario String @unique(map: "Usuario_nombreUsuario_key")
 }
+
+model Administrador {
+  id         BigInt @id @default(autoincrement())
+  email      String @unique
+  nombre     String
+  contrasena String
+}

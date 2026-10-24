@@ -1,4 +1,4 @@
-GET http://localhost:3000/api/corte/resumenTotalSemana
+GET http://localhost:3000/api/barberos/barberosTotales
 Content-Type: application/json
 #####
     
