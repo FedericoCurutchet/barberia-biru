@@ -5,7 +5,6 @@ export function FormularioCorte({ isOpen, onClose, onCorteGuardado }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [horaActual, setHoraActual] = useState("");
 
-  // Obtener hora actual en formato HH:mm para autocompletar el campo
   useEffect(() => {
     if (isOpen) {
       const ahora = new Date();
@@ -15,7 +14,6 @@ export function FormularioCorte({ isOpen, onClose, onCorteGuardado }) {
     }
   }, [isOpen]);
 
-  // Manejo de la tecla Escape para cerrar el modal
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape" && isOpen) onClose();
@@ -73,12 +71,9 @@ export function FormularioCorte({ isOpen, onClose, onCorteGuardado }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs animate-fadeIn">
-      {/* Fondo clickeable para cerrar */}
       <div className="fixed inset-0" onClick={onClose} />
 
-      {/* Tarjeta Modal */}
       <div className="relative w-full max-w-md rounded-xl bg-white shadow-xl ring-1 ring-slate-900/5 z-10 overflow-hidden">
-        {/* Encabezado */}
         <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/50 px-5 py-4">
           <div>
             <h2 className="text-base font-bold text-slate-800">
@@ -109,9 +104,7 @@ export function FormularioCorte({ isOpen, onClose, onCorteGuardado }) {
           </button>
         </div>
 
-        {/* Formulario */}
         <form onSubmit={enviarFormulario} className="space-y-4 p-5">
-          {/* Barbero */}
           <div>
             <label
               htmlFor="barbero"
@@ -130,7 +123,6 @@ export function FormularioCorte({ isOpen, onClose, onCorteGuardado }) {
             </select>
           </div>
 
-          {/* Cliente */}
           <div>
             <label
               htmlFor="cliente"
@@ -148,7 +140,6 @@ export function FormularioCorte({ isOpen, onClose, onCorteGuardado }) {
             />
           </div>
 
-          {/* Monto y Método de Pago */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label
@@ -194,7 +185,6 @@ export function FormularioCorte({ isOpen, onClose, onCorteGuardado }) {
             </div>
           </div>
 
-          {/* Hora */}
           <div>
             <label
               htmlFor="hora"
@@ -212,7 +202,6 @@ export function FormularioCorte({ isOpen, onClose, onCorteGuardado }) {
             />
           </div>
 
-          {/* Acciones */}
           <div className="border-t border-slate-100 pt-4 mt-5 flex items-center justify-end gap-2">
             <button
               onClick={onClose}

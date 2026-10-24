@@ -33,8 +33,13 @@ export class BarberoController {
   };
   public editarBarbero = async (req: Request, res: Response) => {
     try {
-      const { id, nombre, activo } = req.body;
-      const barbero = await barberoService.editarBarbero(id, activo, nombre);
+      const { id, nombre, activo, comision } = req.body;
+      const barbero = await barberoService.editarBarbero(
+        id,
+        activo,
+        nombre,
+        comision,
+      );
 
       return res.status(200).json(barbero);
     } catch (error) {
@@ -58,6 +63,19 @@ export class BarberoController {
   public obtenerBarberosActivos = async (req: Request, res: Response) => {
     try {
       const barberos = await barberoService.obtenerBarberosActivos();
+
+      return res.status(200).json(barberos);
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .json({ message: "Hubo un error al obtener los barberos." });
+    }
+  };
+
+  public obtenerTodosLosBarberos = async (req: Request, res: Response) => {
+    try {
+      const barberos = await barberoService.obtenerTodosLosBarberos();
 
       return res.status(200).json(barberos);
     } catch (error) {

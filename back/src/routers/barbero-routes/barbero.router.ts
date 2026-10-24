@@ -12,6 +12,10 @@ barberoRouter.get(
   "/barbero",
   barberoController.obtenerBarbero.bind(barberoController),
 );
+barberoRouter.get(
+  "/barberosTotales",
+  barberoController.obtenerTodosLosBarberos.bind(barberoController),
+);
 barberoRouter.post("", barberoController.crearBarbero.bind(barberoController));
 barberoRouter.put("", barberoController.editarBarbero.bind(barberoController));
 barberoRouter.delete(

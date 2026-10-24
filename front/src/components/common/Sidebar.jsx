@@ -11,14 +11,12 @@ export function Sidebar() {
 
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-gray-200 bg-white p-4 shadow-sm">
-      {/* Título */}
       <div className="mb-8 px-3">
         <h2 className="text-2xl font-bold text-gray-800">Barbería</h2>
 
         <p className="text-sm text-gray-500">Panel de administración</p>
       </div>
 
-      {/* Navegación */}
       <nav>
         <ul className="flex flex-col gap-2">
           {opciones.map((opcion) => (
@@ -48,7 +46,6 @@ export function Sidebar() {
         </ul>
       </nav>
 
-      {/* Parte inferior */}
       <div className="mt-auto border-t border-gray-200 pt-4">
         <a
           href="#"

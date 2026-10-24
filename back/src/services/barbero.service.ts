@@ -21,11 +21,17 @@ export class BarberoSerivce {
 
     return result;
   }
-  async editarBarbero(id: number, activo?: boolean, nombre?: string) {
+  async editarBarbero(
+    id: number,
+    activo?: boolean,
+    nombre?: string,
+    comision?: Decimal,
+  ) {
     const result = await this.barberoRepository.editarBarbero(
       id,
       activo,
       nombre,
+      comision,
     );
 
     if (!result) {
@@ -45,6 +51,15 @@ export class BarberoSerivce {
 
   async obtenerBarberosActivos() {
     const result = await this.barberoRepository.obtenerBarberosActivos();
+    if (!result) {
+      throw new Error("Error al obteneros los barberos.");
+    }
+
+    return result;
+  }
+
+  async obtenerTodosLosBarberos() {
+    const result = await this.barberoRepository.obtenerTodosLosBarberos();
     if (!result) {
       throw new Error("Error al obteneros los barberos.");
     }
