@@ -8,24 +8,32 @@ datasource db {
 }
 
 model barbero {
-  id       BigInt  @id @default(autoincrement())
-  nombre   String  @unique @db.VarChar(255)
-  activo   Boolean @default(true)
-  comision Decimal @default(45.0)
-  corte    corte[]
-  turno    turno[]
+  id        BigInt     @id @default(autoincrement())
+  nombre    String     @unique @db.VarChar(255)
+  activo    Boolean    @default(true)
+  comision  Decimal    @default(45.0)
+  corte     corte[]
+  turno     turno[]
+  registros registro[]
+}
+
+enum RolUsuario {
+  NORMAL
+  SOLO_REGISTRO
 }
 
 model corte {
-  id              BigInt    @id @default(autoincrement())
-  cliente         String    @db.VarChar(255)
+  id              BigInt     @id @default(autoincrement())
+  cliente         String     @db.VarChar(255)
   monto           Decimal
   montoBarberia   Decimal
   comisionBarbero Decimal
+  propina         Decimal    @default(0.0)
   barberoId       BigInt
   metodoPago      String
-  hora            DateTime? @default(now())
-  barbero         barbero   @relation(fields: [barberoId], references: [id], map: "Corte_barberoId_fkey")
+  hora            DateTime?  @default(now())
+  barbero         barbero    @relation(fields: [barberoId], references: [id], onDelete: Cascade, map: "Corte_barberoId_fkey")
+  registros       registro[]
 
   @@index([barberoId], map: "Corte_barberoId_fkey")
 }
@@ -41,6 +49,13 @@ model turno {
   @@index([barberoId], map: "Turno_barberoId_fkey")
 }
 
+model precioCorte {
+  id          BigInt  @id @default(autoincrement())
+  monto       Decimal
+  descripcion String? @db.VarChar(255)
+  activo      Boolean @default(true)
+}
+
 enum EstadoCorte {
   PENDIENTE
   COMPLETADO
@@ -48,16 +63,38 @@ enum EstadoCorte {
 }
 
 model usuario {
-  id            BigInt @id @default(autoincrement())
-  email         String @unique
+  id            BigInt     @id @default(autoincrement())
+  email         String     @unique
   contrasena    String
   nombre        String
-  nombreUsuario String @unique(map: "Usuario_nombreUsuario_key")
+  nombreUsuario String     @unique(map: "Usuario_nombreUsuario_key")
+  rol           RolUsuario @default(NORMAL)
+  registros     registro[]
 }
 
 model Administrador {
-  id         BigInt @id @default(autoincrement())
-  email      String @unique
+  id         BigInt     @id @default(autoincrement())
+  email      String     @unique
   nombre     String
   contrasena String
+  registros  registro[]
+}
+
+model registro {
+  id              BigInt         @id @default(autoincrement())
+  corteId         BigInt
+  corte           corte          @relation(fields: [corteId], references: [id], onDelete: Cascade)
+  usuarioId       BigInt?
+  usuario         usuario?       @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+  administradorId BigInt?
+  administrador   Administrador? @relation(fields: [administradorId], references: [id], onDelete: SetNull)
+  barberoId       BigInt
+  barbero         barbero        @relation(fields: [barberoId], references: [id], map: "Registro_barberoId_fkey")
+  comisionBarbero Decimal
+  hora            DateTime       @default(now())
+
+  @@index([corteId], map: "Registro_corteId_fkey")
+  @@index([barberoId], map: "Registro_barberoId_fkey")
+  @@index([usuarioId], map: "Registro_usuarioId_fkey")
+  @@index([administradorId], map: "Registro_administradorId_fkey")
 }
