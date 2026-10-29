@@ -1,9 +1,14 @@
 import { type Request, type Response } from "express";
 import { BarberoRepository } from "../repositories/barbero.repository";
-import { BarberoSerivce } from "../services/barbero.service";
+import { BarberoService } from "../services/barbero.service";
+import { RegistroRepository } from "../repositories/registro.repository";
 
 const barberoRepository = new BarberoRepository();
-const barberoService = new BarberoSerivce(barberoRepository);
+const registroRepository = new RegistroRepository();
+const barberoService = new BarberoService(
+  barberoRepository,
+  registroRepository,
+);
 
 export class BarberoController {
   constructor() {}

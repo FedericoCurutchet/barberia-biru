@@ -2,12 +2,22 @@ import { type Request, type Response } from "express";
 import { CorteRepository } from "../repositories/corte.repository";
 import { CorteService } from "../services/corte.service";
 import { BarberoRepository } from "../repositories/barbero.repository";
-import { BarberoSerivce } from "../services/barbero.service";
+import { BarberoService } from "../services/barbero.service";
+import { RegistroRepository } from "../repositories/registro.repository";
 
 const corteRepository = new CorteRepository();
 const barberoRepository = new BarberoRepository();
-const barberoSerivce = new BarberoSerivce(barberoRepository);
-const corteService = new CorteService(corteRepository, barberoSerivce);
+const registroRepository = new RegistroRepository();
+const barberoSerivce = new BarberoService(
+  barberoRepository,
+  registroRepository,
+);
+
+const corteService = new CorteService(
+  corteRepository,
+  registroRepository,
+  barberoSerivce,
+);
 
 export class CorteController {
   constructor() {}

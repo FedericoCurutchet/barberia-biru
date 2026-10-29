@@ -33,8 +33,6 @@ export function FormularioEditarBarbero({
     }
   }
 
-  console.log(barbero);
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs animate-fadeIn">
       {/* Fondo clickeable para cerrar */}

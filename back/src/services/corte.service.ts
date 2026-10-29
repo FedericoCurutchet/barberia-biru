@@ -1,11 +1,13 @@
 import Decimal from "decimal.js";
 import { CorteRepository } from "../repositories/corte.repository";
-import { BarberoSerivce } from "./barbero.service";
+import { BarberoService } from "./barbero.service";
+import { RegistroRepository } from "../repositories/registro.repository";
 
 export class CorteService {
   constructor(
     private corteRepository: CorteRepository,
-    private barberoService: BarberoSerivce,
+    private registroRepository: RegistroRepository,
+    private barberoService: BarberoService,
   ) {}
 
   async crearCorte(
@@ -17,11 +19,12 @@ export class CorteService {
   ) {
     let barbero = await this.barberoService.obtenerBarbero(barberoId);
     if (barbero == null) {
-      throw new Error("No se enconro al barbero");
+      throw new Error("No se encontró al barbero");
     }
     let comision = barbero.comision;
     const comisionBarbero = this.calcularComisionBarbero(monto, comision);
     const montoBarberia = this.calcularMontoBarberia(monto, comisionBarbero);
+
     const result = await this.corteRepository.crearCorte(
       cliente,
       monto,
@@ -35,8 +38,14 @@ export class CorteService {
       throw new Error("Error al guardar el corte.");
     }
 
+    const fechaHora = hora ?? new Date();
+    const textoRegistrar = `registró el siguiente corte { Cliente: ${cliente}, Monto: ${monto.toString()}, Monto Barbería: ${montoBarberia.toString()}, Comisión Barbero: ${comisionBarbero.toString()}, Barbero: ${barbero.nombre}, Método de Pago: ${metodoPago}, Hora: ${fechaHora.toLocaleString()} }`;
+
+    await this.crearRegistro(textoRegistrar);
+
     return result;
   }
+
   async obtenerCorte(id: number) {
     const result = await this.corteRepository.obtenerCorte(id);
     if (!result) {
@@ -46,7 +55,7 @@ export class CorteService {
     return result;
   }
 
-  async edtiarCorte(
+  async editarCorte(
     id: number,
     cliente?: string,
     monto?: Decimal,
@@ -54,15 +63,21 @@ export class CorteService {
     comisionBarbero?: Decimal,
     barberoId?: number,
     hora_string?: string,
+    metodoPago?: string,
   ) {
-    const hora = new Date(hora_string ?? new Date());
+    const corteActual = await this.obtenerCorte(id);
+    const hora = hora_string ? new Date(hora_string) : corteActual.hora;
+
     let comisionBarberoNueva = comisionBarbero;
     let montoBarberiaNueva = montoBarberia;
 
     if (monto) {
-      let barbero = await this.barberoService.obtenerBarbero(Number(barberoId));
+      const idBarberoParaComision = barberoId ?? corteActual.barberoId;
+      let barbero = await this.barberoService.obtenerBarbero(
+        Number(idBarberoParaComision),
+      );
       if (barbero == null) {
-        throw new Error("No se enconro al barbero");
+        throw new Error("No se encontró al barbero");
       }
       let comision = barbero.comision;
       comisionBarberoNueva = this.calcularComisionBarbero(monto, comision);
@@ -79,23 +94,46 @@ export class CorteService {
       montoBarberiaNueva,
       comisionBarberoNueva,
       barberoId,
-      hora,
+      hora ?? new Date(),
     );
     if (!result) {
       throw new Error("Error al editar el corte.");
     }
 
+    const cambios: string[] = [];
+    if (cliente !== undefined) cambios.push(`Cliente: "${cliente}"`);
+    if (monto !== undefined) cambios.push(`Monto: ${monto.toString()}`);
+    if (montoBarberiaNueva !== undefined)
+      cambios.push(`Monto Barbería: ${montoBarberiaNueva.toString()}`);
+    if (comisionBarberoNueva !== undefined)
+      cambios.push(`Comisión Barbero: ${comisionBarberoNueva.toString()}`);
+    if (barberoId !== undefined) cambios.push(`Barbero ID: ${barberoId}`);
+    if (metodoPago !== undefined)
+      cambios.push(`Método de Pago: "${metodoPago}"`);
+    if (hora_string !== undefined) cambios.push(`Hora: ${hora_string}`);
+
+    const detalleCambios =
+      cambios.length > 0 ? cambios.join(", ") : "sin cambios especificados";
+    const textoRegistrar = `editó el corte ID ${id} modificando los siguientes campos: { ${detalleCambios} }`;
+
+    await this.crearRegistro(textoRegistrar);
+
     return result;
   }
+
   async borrarCorte(id: number) {
+    const corte = await this.obtenerCorte(id);
     const result = await this.corteRepository.borrarCorte(id);
     if (!result) {
       throw new Error("Error al borrar el corte.");
     }
 
+    const textoRegistrar = `borró el siguiente corte { Cliente: ${corte.cliente}, Monto: ${corte.monto}, Monto Barbería: ${corte.montoBarberia}, Comisión Barbero: ${corte.comisionBarbero}, Barbero ID: ${corte.barberoId}, Método de Pago: ${corte.metodoPago}, Hora: ${corte.hora} }`;
+
+    await this.crearRegistro(textoRegistrar);
+
     return result;
   }
-
   async obtenerTodosLosCrotesDeUnBarbero(id: number) {
     const result = await this.corteRepository.obtenerCortesBarbero(id);
     if (!result) {
@@ -436,5 +474,12 @@ export class CorteService {
     }
 
     return diasFaltantes;
+  }
+
+  private async crearRegistro(texto: string) {
+    const hora = new Date();
+    const textoRegistrar = `El Usuario ADMINISTRADOR a las ${hora.toLocaleDateString()} ha realizado: ${texto}`;
+
+    await this.registroRepository.crearRegistro(hora, textoRegistrar);
   }
 }
