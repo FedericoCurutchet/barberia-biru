@@ -62,7 +62,7 @@ export class CorteController {
         hora,
       } = req.body;
 
-      const corte = await corteService.edtiarCorte(
+      const corte = await corteService.editarCorte(
         id,
         cliente,
         monto,

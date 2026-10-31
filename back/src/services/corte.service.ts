@@ -10,6 +10,8 @@ export class CorteService {
     private barberoService: BarberoService,
   ) {}
 
+  // CRUD
+
   async crearCorte(
     cliente: string,
     monto: Decimal,
@@ -134,6 +136,9 @@ export class CorteService {
 
     return result;
   }
+
+  // OBTENCION DE DATOS
+
   async obtenerTodosLosCrotesDeUnBarbero(id: number) {
     const result = await this.corteRepository.obtenerCortesBarbero(id);
     if (!result) {
@@ -141,13 +146,6 @@ export class CorteService {
     }
 
     return result;
-  }
-
-  async calcularMontoBarbero(id: number) {
-    const result = await this.corteRepository.obtenerCortesBarbero(id);
-    if (result[0].barbero.comision !== null) {
-      result.forEach((element) => {});
-    }
   }
 
   async obtenerTotalCortes() {
@@ -171,75 +169,53 @@ export class CorteService {
       fecha_final,
     );
     if (!result) {
-      throw new Error("Error al obtener todos los cortes.");
+      throw new Error("Error al obtener el resumen del barbero.");
     }
 
     return result;
   }
 
   async obtenerResumenBarberoDia() {
-    const fecha_inicio = new Date();
-    fecha_inicio.setHours(0, 0, 0, 0);
-    const fecha_final = new Date();
-    fecha_final.setHours(23, 59, 59, 999);
+    const fecha_inicio = this.calcularFechaInicio("dia");
+    const fecha_final = this.calcularFechaFinal("dia");
+
     const result = await this.corteRepository.obtenerResumenBarbero(
       fecha_inicio,
       fecha_final,
     );
     if (!result) {
-      throw new Error("Error al obtener todos los cortes.");
+      throw new Error("Error al obtener el resumen del barbero por día.");
     }
 
     return result;
   }
 
   async obtenerResumenBarberoSemana() {
-    const fecha_inicio = new Date();
+    const fecha_inicio = this.calcularFechaInicio("semana");
+    const fecha_final = this.calcularFechaFinal("semana");
 
-    let diaDeSemana = fecha_inicio.getDay();
-    let diaInicioSemana = fecha_inicio.getDate() - diaDeSemana;
-    fecha_inicio.setDate(diaInicioSemana);
-
-    const fecha_final = new Date();
-    let diasFinalSemana = this.calcularDiasFinalSemana(fecha_final.getDay());
-    let dias = fecha_final.getDate() + diasFinalSemana;
-    fecha_final.setDate(dias);
-
-    fecha_inicio.setHours(0, 0, 0, 0);
-
-    console.log("fecha-inicio" + fecha_inicio);
-    console.log("fecha-final" + fecha_final);
     const result = await this.corteRepository.obtenerResumenBarbero(
       fecha_inicio,
       fecha_final,
     );
 
     if (!result) {
-      throw new Error("Error al obtener todos los cortes.");
+      throw new Error("Error al obtener el resumen del barbero por semana.");
     }
 
     return result;
   }
 
   async obtenerResumenBarberoMes(mes: number) {
-    const fecha_inicio = new Date();
-
-    fecha_inicio.setMonth(mes);
-    fecha_inicio.setDate(1);
-    fecha_inicio.setHours(0, 0, 0, 0);
-
-    const fecha_final = new Date();
-
-    fecha_final.setMonth(mes + 1);
-    fecha_final.setDate(0);
-    fecha_final.setHours(23, 59, 59, 999);
+    const fecha_inicio = this.calcularFechaInicio("mes", mes);
+    const fecha_final = this.calcularFechaFinal("mes", mes);
 
     const result = await this.corteRepository.obtenerResumenBarbero(
       fecha_inicio,
       fecha_final,
     );
     if (!result) {
-      throw new Error("Error al obtener todos los cortes.");
+      throw new Error("Error al obtener el resumen del barbero por mes.");
     }
 
     return result;
@@ -256,163 +232,99 @@ export class CorteService {
       fecha_final,
     );
     if (!result) {
-      throw new Error("Error al obtener todos los cortes.");
+      throw new Error("Error al obtener el resumen total.");
     }
 
     return result;
   }
 
   async obtenerResumenTotalDia() {
-    const fecha_inicio = new Date();
-    fecha_inicio.setHours(0, 0, 0, 0);
-    const fecha_final = new Date();
-    fecha_final.setHours(23, 59, 59, 999);
+    const fecha_inicio = this.calcularFechaInicio("dia");
+    const fecha_final = this.calcularFechaFinal("dia");
+
     const result = await this.corteRepository.obtenerTotalCortes(
       fecha_inicio,
       fecha_final,
     );
     if (!result) {
-      throw new Error("Error al obtener todos los cortes.");
+      throw new Error("Error al obtener el resumen total por día.");
     }
 
     return result;
   }
 
   async obtenerResumenTotalSemana() {
-    const fecha_inicio = new Date();
+    const fecha_inicio = this.calcularFechaInicio("semana");
+    const fecha_final = this.calcularFechaFinal("semana");
 
-    let diaDeSemana = fecha_inicio.getDay();
-    let diaInicioSemana = fecha_inicio.getDate() - diaDeSemana;
-    fecha_inicio.setDate(diaInicioSemana);
-
-    const fecha_final = new Date();
-    let diasFinalSemana = this.calcularDiasFinalSemana(fecha_final.getDay());
-    let dias = fecha_final.getDate() + diasFinalSemana;
-    fecha_final.setDate(dias);
-
-    fecha_inicio.setHours(0, 0, 0, 0);
-
-    console.log("fecha-inicio" + fecha_inicio);
-    console.log("fecha-final" + fecha_final);
     const result = await this.corteRepository.obtenerTotalCortes(
       fecha_inicio,
       fecha_final,
     );
 
     if (!result) {
-      throw new Error("Error al obtener todos los cortes.");
+      throw new Error("Error al obtener el resumen total por semana.");
     }
 
     return result;
   }
 
   async obtenerResumenTotalMes(mes: number) {
-    const fecha_inicio = new Date();
-
-    fecha_inicio.setMonth(mes);
-    fecha_inicio.setDate(1);
-    fecha_inicio.setHours(0, 0, 0, 0);
-
-    const fecha_final = new Date();
-
-    fecha_final.setMonth(mes + 1);
-    fecha_final.setDate(0);
-    fecha_final.setHours(23, 59, 59, 999);
+    const fecha_inicio = this.calcularFechaInicio("mes", mes);
+    const fecha_final = this.calcularFechaFinal("mes", mes);
 
     const result = await this.corteRepository.obtenerTotalCortes(
       fecha_inicio,
       fecha_final,
     );
     if (!result) {
-      throw new Error("Error al obtener todos los cortes.");
+      throw new Error("Error al obtener el resumen total por mes.");
     }
 
     return result;
   }
 
-  private calcularComisionBarbero(
-    montoCorte: Decimal,
-
-    comisionBarbero: Decimal,
-  ) {
-    let comision = new Decimal(montoCorte).mul(comisionBarbero).div(100);
-
-    return comision;
-  }
-
-  private calcularMontoBarberia(
-    montoCorte: Decimal,
-
-    comisionBarbero: Decimal,
-  ) {
-    let monto = new Decimal(montoCorte).minus(comisionBarbero);
-
-    return monto;
-  }
-
   async obtenerCortesPorDia() {
-    const fecha_inicio = new Date();
-    fecha_inicio.setHours(0, 0, 0, 0);
-    const fecha_final = new Date();
-    fecha_final.setHours(23, 59, 59, 999);
+    const fecha_inicio = this.calcularFechaInicio("dia");
+    const fecha_final = this.calcularFechaFinal("dia");
+
     const result = await this.corteRepository.obtenerTodosLosCortesPorFecha(
       fecha_inicio,
       fecha_final,
     );
     if (!result) {
-      throw new Error("Error al obtener todos los cortes.");
+      throw new Error("Error al obtener los cortes por día.");
     }
 
     return result;
   }
 
   async obtenerCortesPorSemanaActual() {
-    const fecha_inicio = new Date();
+    const fecha_inicio = this.calcularFechaInicio("semana");
+    const fecha_final = this.calcularFechaFinal("semana");
 
-    let diaDeSemana = fecha_inicio.getDay();
-    let diaInicioSemana = fecha_inicio.getDate() - diaDeSemana;
-    fecha_inicio.setDate(diaInicioSemana);
-
-    const fecha_final = new Date();
-    let diasFinalSemana = this.calcularDiasFinalSemana(fecha_final.getDay());
-    let dias = fecha_final.getDate() + diasFinalSemana;
-    fecha_final.setDate(dias);
-
-    fecha_inicio.setHours(0, 0, 0, 0);
-
-    console.log("fecha-inicio" + fecha_inicio);
-    console.log("fecha-final" + fecha_final);
     const result = await this.corteRepository.obtenerTodosLosCortesPorFecha(
       fecha_inicio,
       fecha_final,
     );
 
     if (!result) {
-      throw new Error("Error al obtener todos los cortes.");
+      throw new Error("Error al obtener los cortes por semana actual.");
     }
 
     return result;
   }
 
   async obtenerTodosLosCortesPorMes(mes: number) {
-    const fecha_inicio = new Date();
-
-    fecha_inicio.setMonth(mes);
-    fecha_inicio.setDate(1);
-    fecha_inicio.setHours(0, 0, 0, 0);
-
-    const fecha_final = new Date();
-
-    fecha_final.setMonth(mes + 1);
-    fecha_final.setDate(0);
-    fecha_final.setHours(23, 59, 59, 999);
+    const fecha_inicio = this.calcularFechaInicio("mes", mes);
+    const fecha_final = this.calcularFechaFinal("mes", mes);
 
     const result = await this.corteRepository.obtenerTodosLosCortesPorFecha(
       fecha_inicio,
       fecha_final,
     );
     if (!result) {
-      throw new Error("Error al obtener todos los cortes.");
+      throw new Error("Error al obtener todos los cortes por mes.");
     }
 
     return result;
@@ -435,33 +347,35 @@ export class CorteService {
       0,
     );
 
-    this.obtenerCortesPorSemanaActual();
-
     const [anioFin, mesFin, diaFin] = fecha_final_string.split("-").map(Number);
     const fecha_final = new Date(anioFin, mesFin - 1, diaFin, 23, 59, 59, 999);
 
-    let prueba = this.calcularDiasFinalSemana(fecha_inicio.getDay());
-    console.log("aca el dia de hoy" + fecha_inicio.getDate());
-    let otraPrueba = new Date();
-
-    let pruebaCaluclar = fecha_inicio.getDate() + prueba;
-    otraPrueba.setDate(pruebaCaluclar);
-
-    let pruebaFinal = new Date();
-    let pruebaFinalCalcular = pruebaFinal.getDay();
-    let pruebaCaluclarFINAL2 = fecha_inicio.getDate() - pruebaFinalCalcular;
-    pruebaFinal.setDate(pruebaCaluclarFINAL2);
-
-    console.log("aca en teoria la  fecha Inicial" + otraPrueba);
     const result = await this.corteRepository.obtenerTodosLosCortesPorFecha(
       fecha_inicio,
       fecha_final,
     );
     if (!result) {
-      throw new Error("Error al obtener todos los cortes.");
+      throw new Error("Error al obtener todos los cortes por rango de fechas.");
     }
 
     return result;
+  }
+
+  // METODOS PRIVADOS
+
+  private calcularComisionBarbero(
+    montoCorte: Decimal,
+    comisionBarbero: Decimal,
+  ) {
+    let comision = new Decimal(montoCorte).mul(comisionBarbero).div(100);
+
+    return comision;
+  }
+
+  private calcularMontoBarberia(montoCorte: Decimal, comisionBarbero: Decimal) {
+    let monto = new Decimal(montoCorte).minus(comisionBarbero);
+
+    return monto;
   }
 
   private calcularDiasFinalSemana(dia: number) {
@@ -474,6 +388,58 @@ export class CorteService {
     }
 
     return diasFaltantes;
+  }
+
+  private calcularFechaInicio(dia: string, mes?: number) {
+    const fecha_inicio = new Date();
+
+    switch (dia) {
+      case "dia":
+        fecha_inicio.setHours(0, 0, 0, 0);
+        break;
+      case "semana":
+        let diaDeSemana = fecha_inicio.getDay();
+        let diaInicioSemana = fecha_inicio.getDate() - diaDeSemana;
+        fecha_inicio.setDate(diaInicioSemana);
+        fecha_inicio.setHours(0, 0, 0, 0);
+        break;
+      case "mes":
+        if (mes !== undefined) {
+          fecha_inicio.setMonth(mes);
+        }
+        fecha_inicio.setDate(1);
+        fecha_inicio.setHours(0, 0, 0, 0);
+        break;
+    }
+
+    return fecha_inicio;
+  }
+
+  private calcularFechaFinal(dia: string, mes?: number) {
+    const fecha_final = new Date();
+
+    switch (dia) {
+      case "dia":
+        fecha_final.setHours(23, 59, 59, 999);
+        break;
+      case "semana":
+        let diasFinalSemana = this.calcularDiasFinalSemana(
+          fecha_final.getDay(),
+        );
+        let dias = fecha_final.getDate() + diasFinalSemana;
+        fecha_final.setDate(dias);
+        fecha_final.setHours(23, 59, 59, 999);
+        break;
+      case "mes":
+        if (mes !== undefined) {
+          fecha_final.setMonth(mes + 1);
+        }
+        fecha_final.setDate(0);
+        fecha_final.setHours(23, 59, 59, 999);
+        break;
+    }
+
+    return fecha_final;
   }
 
   private async crearRegistro(texto: string) {

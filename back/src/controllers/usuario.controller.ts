@@ -29,7 +29,7 @@ export class UsuarioController {
   async obtenerPorId(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const usuario = await usuarioService.obtenerUsuario(id);
+      const usuario = await usuarioService.obtenerUsuario(Number(id));
       return res.status(200).json(usuario);
     } catch (error: any) {
       return res

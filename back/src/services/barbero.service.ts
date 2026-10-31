@@ -9,13 +9,6 @@ export class BarberoService {
     private registroRepository: RegistroRepository,
   ) {}
 
-  private async crearRegistro(texto: string) {
-    const hora = new Date();
-    const textoRegistrar = `El Usuario ADMINISTRADOR a las ${hora.toLocaleString()} ha realizado: ${texto}`;
-
-    await this.registroRepository.crearRegistro(hora, textoRegistrar);
-  }
-
   async crearBarbero(nombre: string, comision: Decimal) {
     const result = await this.barberoRepository.crearBarbero(nombre, comision);
     if (!result) {
@@ -97,5 +90,12 @@ export class BarberoService {
     }
 
     return result;
+  }
+
+  private async crearRegistro(texto: string) {
+    const hora = new Date();
+    const textoRegistrar = `El Usuario ADMINISTRADOR a las ${hora.toLocaleString()} ha realizado: ${texto}`;
+
+    await this.registroRepository.crearRegistro(hora, textoRegistrar);
   }
 }
