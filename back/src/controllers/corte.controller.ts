@@ -1,23 +1,7 @@
 import { type Request, type Response } from "express";
-import { CorteRepository } from "../repositories/corte.repository";
 import { CorteService } from "../services/corte.service";
-import { BarberoRepository } from "../repositories/barbero.repository";
-import { BarberoService } from "../services/barbero.service";
-import { RegistroRepository } from "../repositories/registro.repository";
 
-const corteRepository = new CorteRepository();
-const barberoRepository = new BarberoRepository();
-const registroRepository = new RegistroRepository();
-const barberoSerivce = new BarberoService(
-  barberoRepository,
-  registroRepository,
-);
-
-const corteService = new CorteService(
-  corteRepository,
-  registroRepository,
-  barberoSerivce,
-);
+const corteService = new CorteService();
 
 export class CorteController {
   constructor() {}
@@ -25,28 +9,40 @@ export class CorteController {
   public crearCorte = async (req: Request, res: Response) => {
     try {
       const { cliente, monto, barberoId, metodoPago, hora } = req.body;
+
+      // Obtenemos el usuario administrador logueado desde el token
+      const nombreUsuarioAdmin = req.user?.username;
+
       const corte = await corteService.crearCorte(
         cliente,
         monto,
         barberoId,
         metodoPago,
-        hora,
+        hora ? new Date(hora) : undefined,
+        nombreUsuarioAdmin,
       );
       return res.status(200).json(corte);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al crear el corte" });
+      return res
+        .status(500)
+        .json({ message: error.message || "Hubo un error al crear el corte" });
     }
   };
 
   public obtenerCorte = async (req: Request, res: Response) => {
     try {
+      // Usualmente el ID viaja por params (/api/corte/:id) o body, ajustado según tu preferencia
       const { id } = req.body;
-      const corte = await corteService.obtenerCorte(id);
+      const corte = await corteService.obtenerCorte(Number(id));
       return res.status(200).json(corte);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al obtener el corte" });
+      return res
+        .status(500)
+        .json({
+          message: error.message || "Hubo un error al obtener el corte",
+        });
     }
   };
 
@@ -60,32 +56,53 @@ export class CorteController {
         comisionBarbero,
         barberoId,
         hora,
+        metodoPago,
       } = req.body;
 
+      // Extraemos el rol y el username del admin desde el token decodificado (req.user)
+      const rolUsuario = req.user?.rol;
+      const nombreUsuarioAdmin = req.user?.username;
+
       const corte = await corteService.editarCorte(
-        id,
+        Number(id),
         cliente,
         monto,
         montoBarberia,
         comisionBarbero,
-        barberoId,
+        barberoId ? Number(barberoId) : undefined,
         hora,
+        metodoPago,
+        nombreUsuarioAdmin,
+        rolUsuario,
       );
       return res.status(200).json(corte);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al editar el corte" });
+      return res
+        .status(500)
+        .json({ message: error.message || "Hubo un error al editar el corte" });
     }
   };
 
   public borrarCorte = async (req: Request, res: Response) => {
     try {
       const { id } = req.body;
-      const corte = await corteService.borrarCorte(id);
+
+      // Extraemos el rol y el username del admin desde el token decodificado (req.user)
+      const rolUsuario = req.user?.rol;
+      const nombreUsuarioAdmin = req.user?.username;
+
+      const corte = await corteService.borrarCorte(
+        Number(id),
+        nombreUsuarioAdmin,
+        rolUsuario,
+      );
       return res.status(200).json(corte);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al borrar el corte" });
+      return res
+        .status(500)
+        .json({ message: error.message || "Hubo un error al borrar el corte" });
     }
   };
 
@@ -98,9 +115,13 @@ export class CorteController {
       );
 
       return res.status(200).json(resumen);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+      return res
+        .status(500)
+        .json({
+          message: error.message || "Hubo un error al buscar el resumen",
+        });
     }
   };
 
@@ -113,9 +134,13 @@ export class CorteController {
       );
 
       return res.status(200).json(resumen);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+      return res
+        .status(500)
+        .json({
+          message: error.message || "Hubo un error al buscar el resumen",
+        });
     }
   };
 
@@ -124,9 +149,13 @@ export class CorteController {
       const resumen = await corteService.obtenerTotalCortes();
 
       return res.status(200).json(resumen);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+      return res
+        .status(500)
+        .json({
+          message: error.message || "Hubo un error al buscar el resumen",
+        });
     }
   };
 
@@ -142,9 +171,13 @@ export class CorteController {
       );
 
       return res.status(200).json(resumen);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+      return res
+        .status(500)
+        .json({
+          message: error.message || "Hubo un error al buscar el resumen",
+        });
     }
   };
 
@@ -153,9 +186,13 @@ export class CorteController {
       const resumen = await corteService.obtenerCortesPorDia();
 
       return res.status(200).json(resumen);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+      return res
+        .status(500)
+        .json({
+          message: error.message || "Hubo un error al buscar el resumen",
+        });
     }
   };
 
@@ -164,9 +201,13 @@ export class CorteController {
       const resumen = await corteService.obtenerCortesPorSemanaActual();
 
       return res.status(200).json(resumen);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+      return res
+        .status(500)
+        .json({
+          message: error.message || "Hubo un error al buscar el resumen",
+        });
     }
   };
 
@@ -177,12 +218,14 @@ export class CorteController {
         Number(mes),
       );
 
-      console.log(resumen);
-
       return res.status(200).json(resumen);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+      return res
+        .status(500)
+        .json({
+          message: error.message || "Hubo un error al buscar el resumen",
+        });
     }
   };
 
@@ -191,9 +234,13 @@ export class CorteController {
       const resumen = await corteService.obtenerResumenBarberoDia();
 
       return res.status(200).json(resumen);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+      return res
+        .status(500)
+        .json({
+          message: error.message || "Hubo un error al buscar el resumen",
+        });
     }
   };
 
@@ -202,9 +249,13 @@ export class CorteController {
       const resumen = await corteService.obtenerResumenBarberoSemana();
 
       return res.status(200).json(resumen);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+      return res
+        .status(500)
+        .json({
+          message: error.message || "Hubo un error al buscar el resumen",
+        });
     }
   };
 
@@ -213,12 +264,14 @@ export class CorteController {
       const { mes } = req.query;
       const resumen = await corteService.obtenerResumenBarberoMes(Number(mes));
 
-      console.log(resumen);
-
       return res.status(200).json(resumen);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+      return res
+        .status(500)
+        .json({
+          message: error.message || "Hubo un error al buscar el resumen",
+        });
     }
   };
 
@@ -227,9 +280,13 @@ export class CorteController {
       const resumen = await corteService.obtenerResumenTotalDia();
 
       return res.status(200).json(resumen);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+      return res
+        .status(500)
+        .json({
+          message: error.message || "Hubo un error al buscar el resumen",
+        });
     }
   };
 
@@ -238,9 +295,13 @@ export class CorteController {
       const resumen = await corteService.obtenerResumenTotalSemana();
 
       return res.status(200).json(resumen);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+      return res
+        .status(500)
+        .json({
+          message: error.message || "Hubo un error al buscar el resumen",
+        });
     }
   };
 
@@ -249,12 +310,14 @@ export class CorteController {
       const { mes } = req.query;
       const resumen = await corteService.obtenerResumenTotalMes(Number(mes));
 
-      console.log(resumen);
-
       return res.status(200).json(resumen);
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      res.status(500).json({ message: "Hubo un error al buscar el resumen" });
+      return res
+        .status(500)
+        .json({
+          message: error.message || "Hubo un error al buscar el resumen",
+        });
     }
   };
 }

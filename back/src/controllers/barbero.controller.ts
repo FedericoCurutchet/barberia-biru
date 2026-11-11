@@ -1,22 +1,21 @@
 import { type Request, type Response } from "express";
-import { BarberoRepository } from "../repositories/barbero.repository";
 import { BarberoService } from "../services/barbero.service";
-import { RegistroRepository } from "../repositories/registro.repository";
+import { UserPayload } from "../types/express";
 
-const barberoRepository = new BarberoRepository();
-const registroRepository = new RegistroRepository();
-const barberoService = new BarberoService(
-  barberoRepository,
-  registroRepository,
-);
+const barberoService = new BarberoService();
 
 export class BarberoController {
   constructor() {}
 
   public crearBarbero = async (req: Request, res: Response) => {
     try {
-      const { nombre, comision } = req.body;
-      const barbero = await barberoService.crearBarbero(nombre, comision);
+      const { nombre, comision, contrasena_admin } = req.body;
+      const barbero = await barberoService.crearBarbero(
+        nombre,
+        comision,
+        contrasena_admin,
+        req.user?.username,
+      );
 
       return res.status(200).json(barbero);
     } catch (error) {
@@ -38,9 +37,11 @@ export class BarberoController {
   };
   public editarBarbero = async (req: Request, res: Response) => {
     try {
-      const { id, nombre, activo, comision } = req.body;
+      const { id, nombre, activo, comision, contrasena_admin } = req.body;
       const barbero = await barberoService.editarBarbero(
         id,
+        req.user?.username,
+        contrasena_admin,
         activo,
         nombre,
         comision,
@@ -55,8 +56,12 @@ export class BarberoController {
 
   public borrarBarbero = async (req: Request, res: Response) => {
     try {
-      const { id } = req.body;
-      const barbero = await barberoService.borrarBarbero(id);
+      const { id, contrasena_admin } = req.body;
+      const barbero = await barberoService.borrarBarbero(
+        id,
+        req.user?.username,
+        contrasena_admin,
+      );
 
       return res.status(200).json(barbero);
     } catch (error) {

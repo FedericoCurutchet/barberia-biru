@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import type { Usuario as UsuarioType } from "../types/Usuario";
-
 import { FormularioRegistrarUsuario } from "../features/FormularioRegistrarUsuario";
 import { FormularioEditarUsuario } from "../features/FormularioEditarUsuario";
+import { ModalAdminPermiso } from "../features/ModalAdminPermiso";
+import type { Registro } from "../types/registro";
 
 export function Usuario() {
   const [usuarios, setUsuarios] = useState<UsuarioType[]>([]);
@@ -12,57 +13,69 @@ export function Usuario() {
   const [modalRegistrar, setModalRegistrar] = useState<boolean>(false);
   const [modalEditar, setModialEditar] = useState<boolean>(false);
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<UsuarioType>();
+  const [modalPermisoAdmin, setModalPermisoAdmin] = useState<boolean>(false);
 
   const [mostrarRegistros, setMostrarRegistros] = useState<boolean>(false);
+  const [usuarioElminar, setUsuarioEliminar] = useState(0);
 
-  // Registros mockeados para la sección visual
-  const registrosMock = [
-    {
-      id: 1,
-      texto:
-        'El Usuario ADMINISTRADOR a las 29/10/2026, 19:15:00 ha realizado: Creación del barbero "Carlos"',
-      fecha: "29/10/2026 19:15:00",
-    },
-    {
-      id: 2,
-      texto:
-        "El Usuario ADMINISTRADOR a las 29/10/2026, 19:30:12 ha realizado: Edición del corte ID 4 modificando los siguientes campos: { Monto: 2500 }",
-      fecha: "29/10/2026 19:30:12",
-    },
-    {
-      id: 3,
-      texto:
-        "El Usuario ADMINISTRADOR a las 29/10/2026, 19:45:50 ha realizado: Eliminación del barbero con ID 2",
-      fecha: "29/10/2026 19:45:50",
-    },
-  ];
+  // 1. Tipamos correctamente el estado como un arreglo de Registros
+  const [registros, setRegistros] = useState<Registro[]>([]);
 
   useEffect(() => {
     setLoading(true);
-    fetch("http://localhost:3000/api/usuarios")
+
+    // Cargar usuarios
+    fetch("http://localhost:3000/api/usuarios", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
       .then((res) => res.json())
       .then((dataResponse: UsuarioType[]) => {
         if (Array.isArray(dataResponse)) {
           setUsuarios(dataResponse);
-          console.log(dataResponse);
         }
       })
       .catch((err) => setError(err.message || "Error al cargar los usuarios"))
       .finally(() => setLoading(false));
-  }, [recargar]);
 
-  function borrarUsuario(id: number) {
-    fetch("http://localhost:3000/api/usuarios", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
+    // Cargar registros de auditoría reales
+    fetch("http://localhost:3000/api/registros", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
     })
       .then((res) => res.json())
-      .catch((err) => console.error(err))
-      .finally(() => {
-        actualizarDatos(true);
-      });
-  }
+      .then((dataResponse: Registro[]) => {
+        if (Array.isArray(dataResponse)) {
+          setRegistros(dataResponse);
+        }
+      })
+      .catch((err) => console.error("Error al cargar los registros:", err));
+  }, [recargar]);
+
+  const borrarUsuario = async (contrasenaAdmin: string) => {
+    const respuesta = await fetch("http://localhost:3000/api/usuarios", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({
+        id: usuarioElminar,
+        contrasena_admin: contrasenaAdmin,
+      }),
+    });
+    if (!respuesta.ok) {
+      const errorData = await respuesta.json();
+      throw new Error(
+        errorData.error || "Contraseña de administrador inválida",
+      );
+    }
+    actualizarDatos(true);
+  };
 
   const editarUsuario = (id: number) => {
     const usuarioAEditar = usuarios.find((c) => c.id === id);
@@ -150,17 +163,6 @@ export function Usuario() {
                       {usuario.rol}
                     </span>
                   </div>
-
-                  <div className="my-4 bg-slate-50/70 p-3 rounded-lg border border-slate-100 space-y-1">
-                    <div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                        Correo Electrónico
-                      </span>
-                      <span className="text-xs font-medium text-slate-800 truncate block">
-                        {usuario.email}
-                      </span>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Botones de Acción */}
@@ -177,7 +179,8 @@ export function Usuario() {
                   <button
                     type="button"
                     onClick={() => {
-                      borrarUsuario(usuario.id);
+                      setUsuarioEliminar(usuario.id);
+                      setModalPermisoAdmin(true);
                     }}
                     className="flex-1 rounded-lg bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-100 transition-colors text-center"
                   >
@@ -189,6 +192,7 @@ export function Usuario() {
           )}
         </div>
 
+        {/* Sección de Historial de Registros */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden transition-all">
           <button
             type="button"
@@ -232,24 +236,24 @@ export function Usuario() {
             </div>
           </button>
 
-          {/* Contenido Desplegable */}
+          {/* Contenido Desplegable de Registros Reales */}
           {mostrarRegistros && (
             <div className="border-t border-slate-100 p-4 bg-slate-50/50 space-y-2.5">
-              {registrosMock.length === 0 ? (
+              {registros.length === 0 ? (
                 <div className="py-6 text-center text-slate-400 text-xs">
                   No hay registros recientes.
                 </div>
               ) : (
-                registrosMock.map((reg) => (
+                registros.map((reg, index) => (
                   <div
-                    key={reg.id}
+                    key={index}
                     className="bg-white p-3 rounded-lg border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-2"
                   >
                     <p className="text-xs text-slate-700 font-medium">
-                      {reg.texto}
+                      {reg.registro}
                     </p>
                     <span className="inline-flex shrink-0 items-center rounded-md bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-500 w-fit">
-                      {reg.fecha}
+                      {new Date(reg.hora).toLocaleString()}
                     </span>
                   </div>
                 ))
@@ -277,6 +281,14 @@ export function Usuario() {
             }}
           />
         )}
+
+        <ModalAdminPermiso
+          isOpen={modalPermisoAdmin}
+          onClose={() => setModalPermisoAdmin(false)}
+          onConfirmar={borrarUsuario}
+          titulo="Eliminar Usuario"
+          descripcion="Introduce la contraseña de administrador para autorizar la baja de este usuario."
+        />
       </div>
     </main>
   );

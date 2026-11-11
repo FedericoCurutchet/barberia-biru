@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useFetch } from "../hooks/useFetch";
 import { TablaCortes } from "../features/TablaCortes";
+import { useFetchSinBody } from "../hooks/useFetchSinBody";
 
 export function Home() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -18,6 +19,7 @@ export function Home() {
     "http://localhost:3000/api/corte/resumenBarberosDia",
   );
 
+  // @ts-ignore
   const cambiarUrlSelector = (diaSelect) => {
     if (diaSelect === "hoy") {
       setUrlCortes("http://localhost:3000/api/corte/cortesDia");
@@ -43,10 +45,21 @@ export function Home() {
   }, [mes, dia]);
 
   // @ts-ignore
-  const resumen = useFetch(urlResumen, refreshTrigger);
+  const resumen = useFetchSinBody(
+    urlResumen,
+    refreshTrigger,
+    localStorage.getItem("token"),
+    "GET",
+  );
   // @ts-ignore
-  const barberos = useFetch(urlBarberos, refreshTrigger);
+  const barberos = useFetchSinBody(
+    urlBarberos,
+    refreshTrigger,
+    localStorage.getItem("token"),
+    "GET",
+  );
 
+  // @ts-ignore
   const actualizarDatos = (seActualizo) => {
     if (seActualizo === true) {
       setRefreshTrigger((prev) => prev + 1);
@@ -126,7 +139,10 @@ export function Home() {
             </div>
             <p className="mt-2 text-2xl font-bold text-slate-900">
               $
-              {new Intl.NumberFormat("de-DE").format(resumen?._sum?.monto ?? 0)}
+              {new Intl.NumberFormat("de-DE").format(
+                // @ts-ignore
+                resumen?._sum?.monto ?? 0,
+              )}
             </p>
             <p className="mt-1 text-[11px] text-slate-400">
               Total bruto recaudado
@@ -145,6 +161,7 @@ export function Home() {
             <p className="mt-2 text-2xl font-bold text-slate-900">
               $
               {new Intl.NumberFormat("de-DE").format(
+                // @ts-ignore
                 resumen?._sum?.montoBarberia ?? 0,
               )}
             </p>
@@ -165,6 +182,7 @@ export function Home() {
             <p className="mt-2 text-2xl font-bold text-slate-900">
               $
               {new Intl.NumberFormat("de-DE").format(
+                // @ts-ignore
                 resumen?._sum?.comisionBarbero ?? 0,
               )}
             </p>

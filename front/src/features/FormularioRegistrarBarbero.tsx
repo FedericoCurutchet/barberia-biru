@@ -1,11 +1,17 @@
 import type React from "react";
+import { useState } from "react";
+import { ModalAdminPermiso } from "./ModalAdminPermiso";
 
 export function FormularioRegistrarBarbero({
   cerrarModal,
 }: {
   cerrarModal: () => void;
 }) {
-  async function enviarFormulario(e: React.FormEvent<HTMLFormElement>) {
+  const [modalPermisoAdmin, setModalPermisoAdmin] = useState<boolean>(false);
+
+  const [datosPendientes, setDatosPendientes] = useState<any>(null);
+
+  const handleIniciarRegistro = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const form = new FormData(e.currentTarget);
@@ -15,26 +21,44 @@ export function FormularioRegistrarBarbero({
       comision: Number(form.get("comision")),
     };
 
-    try {
-      await fetch("http://localhost:3000/api/barberos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(datosBarbero),
-      });
-      cerrarModal();
-    } catch (error) {
-      console.error("Error:", error);
+    setDatosPendientes(datosBarbero);
+    setModalPermisoAdmin(true);
+  };
+
+  const handleConfirmarConAdmin = async (contrasenaAdmin: string) => {
+    if (!datosPendientes) return;
+
+    const bodyFinal = {
+      ...datosPendientes,
+      contrasena_admin: contrasenaAdmin,
+    };
+
+    const respuesta = await fetch("http://localhost:3000/api/barberos", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify(bodyFinal),
+    });
+
+    if (!respuesta.ok) {
+      const errorData = await respuesta.json();
+      throw new Error(
+        errorData.error ||
+          "Error al registrar el barbero o contraseña de admin inválida",
+      );
     }
-  }
+
+    setModalPermisoAdmin(false);
+    cerrarModal();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs animate-fadeIn">
-      {/* Fondo clickeable para cerrar */}
       <div className="fixed inset-0" onClick={cerrarModal} />
 
-      {/* Tarjeta Modal */}
       <div className="relative w-full max-w-md rounded-xl bg-white shadow-xl ring-1 ring-slate-900/5 z-10 overflow-hidden">
-        {/* Encabezado */}
         <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/50 px-5 py-4">
           <div>
             <h2 className="text-base font-bold text-slate-800">
@@ -53,8 +77,7 @@ export function FormularioRegistrarBarbero({
           </button>
         </div>
 
-        {/* Formulario */}
-        <form onSubmit={enviarFormulario} className="space-y-4 p-5">
+        <form onSubmit={handleIniciarRegistro} className="space-y-4 p-5">
           <div>
             <label
               htmlFor="nombre"
@@ -91,7 +114,6 @@ export function FormularioRegistrarBarbero({
             />
           </div>
 
-          {/* Botones de acción */}
           <div className="border-t border-slate-100 pt-4 mt-5 flex items-center justify-end gap-2">
             <button
               type="button"
@@ -110,6 +132,14 @@ export function FormularioRegistrarBarbero({
           </div>
         </form>
       </div>
+
+      <ModalAdminPermiso
+        isOpen={modalPermisoAdmin}
+        onClose={() => setModalPermisoAdmin(false)}
+        onConfirmar={handleConfirmarConAdmin}
+        titulo="Autorizar Creación de Barbero"
+        descripcion="Ingresa la contraseña de administrador para confirmar la creación del nuevo colaborador."
+      />
     </div>
   );
 }
