@@ -21,7 +21,11 @@ export class RegistroRepository {
   }
 
   async obtenerTodosLosRegistros() {
-    const result = await prisma.registro.findMany();
+    const result = await prisma.registro.findMany({
+      orderBy: {
+        id: "desc",
+      },
+    });
     return result;
   }
 }

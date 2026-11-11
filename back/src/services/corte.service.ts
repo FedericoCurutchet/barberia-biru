@@ -2,13 +2,20 @@ import Decimal from "decimal.js";
 import { CorteRepository } from "../repositories/corte.repository";
 import { BarberoService } from "./barbero.service";
 import { RegistroRepository } from "../repositories/registro.repository";
+import { UsuarioRepository } from "../repositories/usuario.repository";
+import bcrypt from "bcryptjs";
 
 export class CorteService {
-  constructor(
-    private corteRepository: CorteRepository,
-    private registroRepository: RegistroRepository,
-    private barberoService: BarberoService,
-  ) {}
+  private corteRepository: CorteRepository;
+  private registroRepository: RegistroRepository;
+  private barberoService: BarberoService;
+  private usuarioRepository: UsuarioRepository;
+  constructor() {
+    this.corteRepository = new CorteRepository();
+    this.registroRepository = new RegistroRepository();
+    this.barberoService = new BarberoService();
+    this.usuarioRepository = new UsuarioRepository();
+  }
 
   // CRUD
 
@@ -18,6 +25,7 @@ export class CorteService {
     barberoId: number,
     metodoPago: string,
     hora?: Date,
+    nombre_usuario_admin?: string,
   ) {
     let barbero = await this.barberoService.obtenerBarbero(barberoId);
     if (barbero == null) {
@@ -43,7 +51,7 @@ export class CorteService {
     const fechaHora = hora ?? new Date();
     const textoRegistrar = `registró el siguiente corte { Cliente: ${cliente}, Monto: ${monto.toString()}, Monto Barbería: ${montoBarberia.toString()}, Comisión Barbero: ${comisionBarbero.toString()}, Barbero: ${barbero.nombre}, Método de Pago: ${metodoPago}, Hora: ${fechaHora.toLocaleString()} }`;
 
-    await this.crearRegistro(textoRegistrar);
+    await this.crearRegistro(textoRegistrar, nombre_usuario_admin);
 
     return result;
   }
@@ -66,9 +74,15 @@ export class CorteService {
     barberoId?: number,
     hora_string?: string,
     metodoPago?: string,
+    nombre_usuario_admin?: string,
+    rol?: string,
   ) {
     const corteActual = await this.obtenerCorte(id);
     const hora = hora_string ? new Date(hora_string) : corteActual.hora;
+
+    if (!(await this.verificarPuedeRealizarAccion(hora, rol))) {
+      throw new Error("No tenes permitido realizar esta accion");
+    }
 
     let comisionBarberoNueva = comisionBarbero;
     let montoBarberiaNueva = montoBarberia;
@@ -118,12 +132,15 @@ export class CorteService {
       cambios.length > 0 ? cambios.join(", ") : "sin cambios especificados";
     const textoRegistrar = `editó el corte ID ${id} modificando los siguientes campos: { ${detalleCambios} }`;
 
-    await this.crearRegistro(textoRegistrar);
+    await this.crearRegistro(textoRegistrar, nombre_usuario_admin);
 
     return result;
   }
 
-  async borrarCorte(id: number) {
+  async borrarCorte(id: number, nombre_usuario_admin?: string, rol?: string) {
+    if (!(await this.verificarPuedeRealizarAccion(new Date(), rol))) {
+      throw new Error("No tenes permitido realizar esta accion");
+    }
     const corte = await this.obtenerCorte(id);
     const result = await this.corteRepository.borrarCorte(id);
     if (!result) {
@@ -132,7 +149,7 @@ export class CorteService {
 
     const textoRegistrar = `borró el siguiente corte { Cliente: ${corte.cliente}, Monto: ${corte.monto}, Monto Barbería: ${corte.montoBarberia}, Comisión Barbero: ${corte.comisionBarbero}, Barbero ID: ${corte.barberoId}, Método de Pago: ${corte.metodoPago}, Hora: ${corte.hora} }`;
 
-    await this.crearRegistro(textoRegistrar);
+    await this.crearRegistro(textoRegistrar, nombre_usuario_admin);
 
     return result;
   }
@@ -442,10 +459,58 @@ export class CorteService {
     return fecha_final;
   }
 
-  private async crearRegistro(texto: string) {
+  private calcularFechaHoy() {
+    let hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    return hoy;
+  }
+
+  private async crearRegistro(texto: string, autor: string | undefined) {
     const hora = new Date();
-    const textoRegistrar = `El Usuario ADMINISTRADOR a las ${hora.toLocaleDateString()} ha realizado: ${texto}`;
+    const textoRegistrar = `El Usuario ${autor} a las ${hora.toLocaleString()} ha realizado: ${texto}`;
 
     await this.registroRepository.crearRegistro(hora, textoRegistrar);
+  }
+
+  async verificarContraseniaAdmin(nombre_usuario: string, contrasena: string) {
+    const usuario =
+      await this.usuarioRepository.obtenerUsuarioPorNombre(nombre_usuario);
+
+    if (!usuario) {
+      throw new Error("Credenciales inválidas");
+    }
+
+    const isMatch = await bcrypt.compare(contrasena, usuario.contrasena);
+    console.log("Contra comparacion " + isMatch);
+    if (!isMatch) {
+      throw new Error("Credenciales inválidas");
+    }
+
+    return true;
+  }
+
+  async verificarPuedeRealizarAccion(
+    horaRealizoAccion: Date | null,
+    rol: string | undefined,
+  ) {
+    if (rol !== "SOLO_REGISTRO") {
+      return true;
+    }
+    if (horaRealizoAccion == null) {
+      return false;
+    }
+
+    const inicioHoy = this.calcularFechaHoy();
+
+    const finHoy = new Date(inicioHoy);
+    finHoy.setHours(23, 59, 59, 999);
+
+    const fechaAccion = new Date(horaRealizoAccion);
+
+    if (fechaAccion < inicioHoy || fechaAccion > finHoy) {
+      return false;
+    }
+
+    return true;
   }
 }

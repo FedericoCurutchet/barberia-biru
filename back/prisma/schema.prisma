@@ -19,6 +19,7 @@ model barbero {
 enum RolUsuario {
   NORMAL
   SOLO_REGISTRO
+  ADMINISTRADOR
 }
 
 model corte {
@@ -62,7 +63,6 @@ enum EstadoCorte {
 
 model usuario {
   id            BigInt     @id @default(autoincrement())
-  email         String     @unique
   contrasena    String
   nombre        String
   nombreUsuario String     @unique(map: "Usuario_nombreUsuario_key")

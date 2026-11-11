@@ -6,9 +6,11 @@ export function Sidebar() {
     { nombre: "Usuario", icono: "👤", ruta: "/usuario" },
     { nombre: "Barberos", icono: "✂", ruta: "/barberos" },
     { nombre: "Resumen", icono: "📊", ruta: "/resumen" },
-    { nombre: "Configuración", icono: "⚙", ruta: "/configuracion" },
   ];
 
+  function cerrarSesion() {
+    localStorage.removeItem("token");
+  }
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-gray-200 bg-white p-4 shadow-sm">
       <div className="mb-8 px-3">
@@ -47,14 +49,15 @@ export function Sidebar() {
       </nav>
 
       <div className="mt-auto border-t border-gray-200 pt-4">
-        <a
-          href="#"
+        <NavLink
+          onClick={cerrarSesion}
+          to={"login"}
           className="flex items-center gap-3 rounded-lg px-4 py-3 text-gray-500 transition hover:bg-red-50 hover:text-red-600"
         >
           <span>↪</span>
 
           <span className="font-medium">Cerrar sesión</span>
-        </a>
+        </NavLink>
       </div>
     </aside>
   );

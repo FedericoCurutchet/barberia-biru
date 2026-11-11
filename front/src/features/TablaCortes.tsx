@@ -24,7 +24,12 @@ export function TablaCortes({
 
   useEffect(() => {
     setLoading(true);
-    fetch(url)
+    fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
       .then((res) => res.json())
       .then((dataResponse: CorteResponse[]) => {
         if (Array.isArray(dataResponse)) {
@@ -90,7 +95,10 @@ export function TablaCortes({
   function borrarElemento(id: number) {
     fetch("http://localhost:3000/api/corte", {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
       body: JSON.stringify({ id }),
     })
       .then((res) => res.json())

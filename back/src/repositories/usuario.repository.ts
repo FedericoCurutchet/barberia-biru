@@ -6,7 +6,6 @@ export class UsuarioRepository {
     nombre: string,
     contrasena: string,
     nombre_usuario: string,
-    email: string,
     rol?: RolUsuario,
   ) {
     const result = await prisma.usuario.create({
@@ -14,7 +13,6 @@ export class UsuarioRepository {
         nombre: nombre,
         contrasena: contrasena,
         nombreUsuario: nombre_usuario,
-        email: email,
         rol: rol,
       },
     });
@@ -34,7 +32,7 @@ export class UsuarioRepository {
   async editarUsuario(
     id: number,
     nombre?: string,
-    contrasena?: string | null,
+    contrasena?: string,
     nombre_usuario?: string,
     rol?: RolUsuario,
   ) {
@@ -83,6 +81,16 @@ export class UsuarioRepository {
 
   async obtenerTodosLosUsuarios() {
     const result = await prisma.usuario.findMany();
+    return result;
+  }
+
+  async obtenerUsuarioPorNombre(nombre_usuario: string | undefined) {
+    const result = await prisma.usuario.findUnique({
+      where: {
+        nombreUsuario: nombre_usuario,
+      },
+    });
+
     return result;
   }
 }

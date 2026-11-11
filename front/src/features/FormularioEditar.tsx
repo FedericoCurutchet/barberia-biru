@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import type { CorteItem } from "../types/CorteItem";
 import type { CorteResponse } from "../types/CorteResponse";
+import type { Barbero } from "../types/barbero";
 
 export function FormularioEditar({
   isOpen,
@@ -16,12 +17,27 @@ export function FormularioEditar({
   const [dataFormulario, setDataFormulario] = useState<CorteItem>(datosForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [guardadoExitoso, setGuardadoExitoso] = useState(false);
+  const [barberos, setBarberos] = useState<Barbero[]>([]);
 
   useEffect(() => {
     setDataFormulario(datosForm);
   }, [datosForm]);
 
   useEffect(() => {
+    fetch("http://localhost:3000/api/barberos", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Error al obtener los barberos");
+        return res.json();
+      })
+      .then((data: Barbero[]) => {
+        setBarberos(data);
+      })
+      .catch((err) => err.message);
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) onClose();
     };
@@ -53,7 +69,10 @@ export function FormularioEditar({
     try {
       const respuesta = await fetch("http://localhost:3000/api/corte", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
         body: JSON.stringify(datos),
       });
 
@@ -161,16 +180,29 @@ export function FormularioEditar({
             >
               Barbero
             </label>
-            <select
-              defaultValue={dataFormulario.barbero.id}
-              name="barbero"
-              id="barbero"
-              required
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 shadow-2xs focus:border-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-800"
-            >
-              <option value="2">Juan</option>
-              <option value="3">Dofe</option>
-            </select>
+
+            {barberos && barberos.length > 0 ? (
+              <select
+                name="barbero"
+                id="barbero"
+                required
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 shadow-2xs focus:border-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-800"
+                defaultValue={datosForm.barbero.id}
+              >
+                <option value="" disabled>
+                  Selecciona un barbero...
+                </option>
+                {barberos.map((barbero) => (
+                  <option key={barbero.id} value={barbero.id}>
+                    {barbero.nombre}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-xs text-slate-400">
+                Cargando barberos...
+              </div>
+            )}
           </div>
 
           <div>

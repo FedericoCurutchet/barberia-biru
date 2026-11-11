@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FormularioEditarBarbero } from "../features/FormularioEditarBarbero";
 import { FormularioRegistrarBarbero } from "../features/FormularioRegistrarBarbero";
+import { ModalAdminPermiso } from "../features/ModalAdminPermiso";
 
 export interface Barbero {
   id: number;
@@ -19,10 +20,17 @@ export function Barberos() {
   const [modalRegistrarBarbero, setModalRegistraBarbero] =
     useState<boolean>(false);
   const [modalEditarBarbero, setModalEditarBarbero] = useState<boolean>(false);
+  const [modalPermisoAdmin, setModalPermisoAdmin] = useState<boolean>(false);
+  const [barberoAEliminar, setBarberoAEliminar] = useState(0);
 
   useEffect(() => {
     setLoading(true);
-    fetch("http://localhost:3000/api/barberos/barberosTotales")
+    fetch("http://localhost:3000/api/barberos/barberosTotales", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
       .then((res) => {
         if (!res.ok) throw new Error("Error al obtener los barberos");
         return res.json();
@@ -42,18 +50,28 @@ export function Barberos() {
     }
   };
 
-  function borrarBarbero(id: number) {
-    fetch("http://localhost:3000/api/barberos", {
+  const borrarBarbero = async (contrasenaAdmin: string) => {
+    const respuesta = await fetch(`http://localhost:3000/api/barberos`, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    })
-      .then((res) => res.json())
-      .catch((err) => console.error(err))
-      .finally(() => {
-        actualizarDatos(true);
-      });
-  }
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+
+      body: JSON.stringify({
+        id: barberoAEliminar,
+        contrasena_admin: contrasenaAdmin,
+      }),
+    });
+
+    if (!respuesta.ok) {
+      const errorData = await respuesta.json();
+      throw new Error(
+        errorData.error || "Contraseña de administrador inválida",
+      );
+    }
+    actualizarDatos(true);
+  };
 
   const actualizarDatos = (seActualizo: boolean) => {
     if (seActualizo === true) {
@@ -64,7 +82,6 @@ export function Barberos() {
   return (
     <main className="w-full bg-slate-100 min-h-screen p-4 md:p-6 text-slate-800">
       <div className="mx-auto w-full max-w-7xl space-y-6">
-        {/* Encabezado y Botón de Registro */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
           <div>
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900">
@@ -87,7 +104,6 @@ export function Barberos() {
           </button>
         </div>
 
-        {/* Contenedor de la lista en Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {loading ? (
             <div className="col-span-full py-12 text-center text-slate-400 text-xs bg-white rounded-xl border border-slate-200">
@@ -149,7 +165,6 @@ export function Barberos() {
                   </div>
                 </div>
 
-                {/* Botones de Acción */}
                 <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
                   <button
                     type="button"
@@ -163,7 +178,8 @@ export function Barberos() {
                   <button
                     type="button"
                     onClick={() => {
-                      borrarBarbero(barbero.id);
+                      setBarberoAEliminar(barbero.id);
+                      setModalPermisoAdmin(true);
                     }}
                     className="flex-1 rounded-lg bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-100 transition-colors text-center"
                   >
@@ -175,7 +191,6 @@ export function Barberos() {
           )}
         </div>
 
-        {/* Modales */}
         {modalRegistrarBarbero && (
           <FormularioRegistrarBarbero
             cerrarModal={() => {
@@ -194,6 +209,14 @@ export function Barberos() {
             }}
           />
         )}
+
+        <ModalAdminPermiso
+          isOpen={modalPermisoAdmin}
+          onClose={() => setModalPermisoAdmin(false)}
+          onConfirmar={borrarBarbero}
+          titulo="Eliminar Barbero"
+          descripcion="Introduce la contraseña de administrador para autorizar la baja."
+        />
       </div>
     </main>
   );

@@ -1,21 +1,50 @@
+import type React from "react";
 import { useState, useEffect } from "react";
+import type { Barbero } from "../types/barbero";
+import type { CorteItem } from "../types/CorteItem";
 
-// @ts-ignore
-export function FormularioCorte({ isOpen, onClose, onCorteGuardado }) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [horaActual, setHoraActual] = useState("");
+interface FormularioCorteProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onCorteGuardado: (data: CorteItem) => void; // Puedes cambiar 'any' por la interfaz de tu corte si la tienes
+}
+
+export function FormularioCorte({
+  isOpen,
+  onClose,
+  onCorteGuardado,
+}: FormularioCorteProps) {
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [horaActual, setHoraActual] = useState<string>("");
+
+  const [barberos, setBarberos] = useState<Barbero[]>([]);
 
   useEffect(() => {
     if (isOpen) {
       const ahora = new Date();
       const horas = String(ahora.getHours()).padStart(2, "0");
       const minutos = String(ahora.getMinutes()).padStart(2, "0");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setHoraActual(`${horas}:${minutos}`);
+      fetch("http://localhost:3000/api/barberos", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Error al obtener los barberos");
+          return res.json();
+        })
+        .then((data: Barbero[]) => {
+          setBarberos(data);
+        })
+        .catch((err) => err.message);
     }
   }, [isOpen]);
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) onClose();
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -24,25 +53,27 @@ export function FormularioCorte({ isOpen, onClose, onCorteGuardado }) {
 
   if (!isOpen) return null;
 
-  // @ts-ignore
-  async function enviarFormulario(e) {
+  async function enviarFormulario(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsSubmitting(true);
 
     const formData = new FormData(e.currentTarget);
 
-    let datos = {
+    const datos = {
       cliente: formData.get("cliente"),
       monto: Number(formData.get("monto")),
       metodoPago: formData.get("metodoPago"),
       barberoId: Number(formData.get("barbero")),
-      hora: formatearHora(formData.get("hora")),
+      hora: formatearHora(formData.get("hora") as string),
     };
 
     try {
       const respuesta = await fetch("http://localhost:3000/api/corte", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
         body: JSON.stringify(datos),
       });
 
@@ -59,9 +90,8 @@ export function FormularioCorte({ isOpen, onClose, onCorteGuardado }) {
     }
   }
 
-  // @ts-ignore
-  function formatearHora(horaStr) {
-    let horaNueva = new Date();
+  function formatearHora(horaStr: string | null): string {
+    const horaNueva = new Date();
     if (horaStr) {
       const [horas, minutos] = horaStr.split(":");
       horaNueva.setHours(parseInt(horas, 10), parseInt(minutos, 10), 0, 0);
@@ -118,8 +148,14 @@ export function FormularioCorte({ isOpen, onClose, onCorteGuardado }) {
               required
               className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 shadow-2xs focus:border-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-800"
             >
-              <option value="2">Juan</option>
-              <option value="3">Dofe</option>
+              <option value="" disabled selected>
+                Selecciona un barbero...
+              </option>
+              {barberos.map((barbero) => (
+                <option key={barbero.id} value={barbero.id}>
+                  {barbero.nombre}
+                </option>
+              ))}
             </select>
           </div>
 

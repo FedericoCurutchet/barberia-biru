@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+// @ts-ignore
 import { useFetch } from "../hooks/useFetch";
 import { TablaCortes } from "../features/TablaCortes";
+import { useFetchSinBody } from "../hooks/useFetchSinBody";
 
 export function Resumen() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -13,6 +15,7 @@ export function Resumen() {
   const [urlResumenMes, setUrlResumenMes] = useState(
     `http://localhost:3000/api/corte/resumenTotalMes?mes=${mes}`,
   );
+  // @ts-ignore
   const [urlResumenSemana, setUrlResumenSemana] = useState(
     "http://localhost:3000/api/corte/resumenTotalSemana",
   );
@@ -31,12 +34,28 @@ export function Resumen() {
   }, [mes]);
 
   // @ts-ignore
-  const resumenMes = useFetch(urlResumenMes, refreshTrigger);
+  const resumenMes = useFetchSinBody(
+    urlResumenMes,
+    refreshTrigger,
+    localStorage.getItem("token"),
+    "GET",
+  );
   // @ts-ignore
-  const resumenSemana = useFetch(urlResumenSemana, refreshTrigger);
+  const resumenSemana = useFetchSinBody(
+    urlResumenSemana,
+    refreshTrigger,
+    localStorage.getItem("token"),
+    "GET",
+  );
   // @ts-ignore
-  const barberos = useFetch(urlBarberos, refreshTrigger);
+  const barberos = useFetchSinBody(
+    urlBarberos,
+    refreshTrigger,
+    localStorage.getItem("token"),
+    "GET",
+  );
 
+  // @ts-ignore
   const actualizarDatos = (seActualizo) => {
     if (seActualizo === true) {
       setRefreshTrigger((prev) => prev + 1);
@@ -113,6 +132,7 @@ export function Resumen() {
                   <p className="mt-1 text-xl font-bold text-slate-900">
                     $
                     {new Intl.NumberFormat("de-DE").format(
+                      // @ts-ignore
                       resumenMes?._sum?.monto ?? 0,
                     )}
                   </p>
@@ -124,6 +144,7 @@ export function Resumen() {
                   <p className="mt-1 text-xl font-bold text-emerald-700">
                     $
                     {new Intl.NumberFormat("de-DE").format(
+                      // @ts-ignore
                       resumenMes?._sum?.montoBarberia ?? 0,
                     )}
                   </p>
@@ -135,6 +156,7 @@ export function Resumen() {
                   <p className="mt-1 text-xl font-bold text-indigo-700">
                     $
                     {new Intl.NumberFormat("de-DE").format(
+                      // @ts-ignore
                       resumenMes?._sum?.comisionBarbero ?? 0,
                     )}
                   </p>
@@ -159,6 +181,7 @@ export function Resumen() {
                   <p className="mt-1 text-lg font-bold text-slate-800">
                     $
                     {new Intl.NumberFormat("de-DE").format(
+                      // @ts-ignore
                       resumenSemana?._sum?.monto ?? 0,
                     )}
                   </p>
@@ -170,6 +193,7 @@ export function Resumen() {
                   <p className="mt-1 text-lg font-bold text-slate-800">
                     $
                     {new Intl.NumberFormat("de-DE").format(
+                      // @ts-ignore
                       resumenSemana?._sum?.montoBarberia ?? 0,
                     )}
                   </p>
@@ -181,6 +205,7 @@ export function Resumen() {
                   <p className="mt-1 text-lg font-bold text-slate-800">
                     $
                     {new Intl.NumberFormat("de-DE").format(
+                      // @ts-ignore
                       resumenSemana?._sum?.comisionBarbero ?? 0,
                     )}
                   </p>

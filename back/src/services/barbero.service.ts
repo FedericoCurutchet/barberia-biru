@@ -1,22 +1,41 @@
 import Decimal from "decimal.js";
 import { BarberoRepository } from "../repositories/barbero.repository";
 import { RegistroRepository } from "../repositories/registro.repository";
+import { UsuarioRepository } from "../repositories/usuario.repository";
+import bcrypt from "bcryptjs";
 // import { RegistroRepository } from "../repositories/registro.repository";
 
 export class BarberoService {
-  constructor(
-    private barberoRepository: BarberoRepository,
-    private registroRepository: RegistroRepository,
-  ) {}
+  private barberoRepository: BarberoRepository;
+  private registroRepository: RegistroRepository;
+  private usuarioRepository: UsuarioRepository;
+  constructor() {
+    this.barberoRepository = new BarberoRepository();
+    this.registroRepository = new RegistroRepository();
+    this.usuarioRepository = new UsuarioRepository();
+  }
 
-  async crearBarbero(nombre: string, comision: Decimal) {
+  async crearBarbero(
+    nombre: string,
+    comision: Decimal,
+
+    contrasena_admin: string,
+    nombre_usuario_admin?: string,
+  ) {
+    if (
+      !this.verificarContraseniaAdmin(nombre_usuario_admin, contrasena_admin)
+    ) {
+      throw new Error("Error datos administrador");
+    }
     const result = await this.barberoRepository.crearBarbero(nombre, comision);
+
     if (!result) {
       throw new Error("Error al crear el barbero.");
     }
 
     await this.crearRegistro(
       `Creación del barbero "${nombre}" con comisión ${comision.toString()}`,
+      nombre_usuario_admin,
     );
 
     return result;
@@ -33,10 +52,17 @@ export class BarberoService {
 
   async editarBarbero(
     id: number,
+    nombre_usuario_admin: string | undefined,
+    contrasena_admin: string,
     activo?: boolean,
     nombre?: string,
     comision?: Decimal,
   ) {
+    if (
+      !this.verificarContraseniaAdmin(nombre_usuario_admin, contrasena_admin)
+    ) {
+      throw new Error("Error datos administrador");
+    }
     const result = await this.barberoRepository.editarBarbero(
       id,
       activo,
@@ -58,18 +84,32 @@ export class BarberoService {
       cambios.length > 0 ? cambios.join(", ") : "sin cambios especificados";
     await this.crearRegistro(
       `Edición del barbero ID ${id}: se modificó ${detalleCambios}`,
+      nombre_usuario_admin,
     );
 
     return result;
   }
 
-  async borrarBarbero(id: number) {
+  async borrarBarbero(
+    id: number,
+    nombre_usuario_admin: string | undefined,
+    contrasena_admin: string,
+  ) {
+    if (
+      !this.verificarContraseniaAdmin(nombre_usuario_admin, contrasena_admin)
+    ) {
+      throw new Error("Error datos administrador");
+    }
     const result = await this.barberoRepository.borrarBarbero(id);
+
     if (!result) {
       throw new Error("Error al borrar el barbero.");
     }
 
-    await this.crearRegistro(`Eliminación del barbero con ID ${id}`);
+    await this.crearRegistro(
+      `Eliminación del barbero con ID ${id}`,
+      nombre_usuario_admin,
+    );
 
     return result;
   }
@@ -92,10 +132,30 @@ export class BarberoService {
     return result;
   }
 
-  private async crearRegistro(texto: string) {
+  private async crearRegistro(texto: string, autor: string | undefined) {
     const hora = new Date();
-    const textoRegistrar = `El Usuario ADMINISTRADOR a las ${hora.toLocaleString()} ha realizado: ${texto}`;
+    const textoRegistrar = `El Usuario ${autor} a las ${hora.toLocaleString()} ha realizado: ${texto}`;
 
     await this.registroRepository.crearRegistro(hora, textoRegistrar);
+  }
+
+  async verificarContraseniaAdmin(
+    nombre_usuario: string | undefined,
+    contrasena: string,
+  ) {
+    const usuario =
+      await this.usuarioRepository.obtenerUsuarioPorNombre(nombre_usuario);
+
+    if (!usuario) {
+      throw new Error("Credenciales inválidas");
+    }
+
+    const isMatch = await bcrypt.compare(contrasena, usuario.contrasena);
+    console.log("Contra comparacion " + isMatch);
+    if (!isMatch) {
+      throw new Error("Credenciales inválidas");
+    }
+
+    return true;
   }
 }
