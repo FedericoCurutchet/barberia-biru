@@ -1,5 +1,6 @@
 import { type Request, type Response } from "express";
 import { CorteService } from "../services/corte.service";
+import { UserPayload } from "../types/express";
 
 const corteService = new CorteService();
 
@@ -8,9 +9,8 @@ export class CorteController {
 
   public crearCorte = async (req: Request, res: Response) => {
     try {
-      const { cliente, monto, barberoId, metodoPago, hora } = req.body;
+      const { cliente, monto, barberoId, metodoPago, hora, propina } = req.body;
 
-      // Obtenemos el usuario administrador logueado desde el token
       const nombreUsuarioAdmin = req.user?.username;
 
       const corte = await corteService.crearCorte(
@@ -20,6 +20,7 @@ export class CorteController {
         metodoPago,
         hora ? new Date(hora) : undefined,
         nombreUsuarioAdmin,
+        propina,
       );
       return res.status(200).json(corte);
     } catch (error: any) {
@@ -32,17 +33,14 @@ export class CorteController {
 
   public obtenerCorte = async (req: Request, res: Response) => {
     try {
-      // Usualmente el ID viaja por params (/api/corte/:id) o body, ajustado según tu preferencia
       const { id } = req.body;
       const corte = await corteService.obtenerCorte(Number(id));
       return res.status(200).json(corte);
     } catch (error: any) {
       console.log(error);
-      return res
-        .status(500)
-        .json({
-          message: error.message || "Hubo un error al obtener el corte",
-        });
+      return res.status(500).json({
+        message: error.message || "Hubo un error al obtener el corte",
+      });
     }
   };
 
@@ -57,9 +55,9 @@ export class CorteController {
         barberoId,
         hora,
         metodoPago,
+        propina,
       } = req.body;
 
-      // Extraemos el rol y el username del admin desde el token decodificado (req.user)
       const rolUsuario = req.user?.rol;
       const nombreUsuarioAdmin = req.user?.username;
 
@@ -74,6 +72,7 @@ export class CorteController {
         metodoPago,
         nombreUsuarioAdmin,
         rolUsuario,
+        propina,
       );
       return res.status(200).json(corte);
     } catch (error: any) {
@@ -88,7 +87,6 @@ export class CorteController {
     try {
       const { id } = req.body;
 
-      // Extraemos el rol y el username del admin desde el token decodificado (req.user)
       const rolUsuario = req.user?.rol;
       const nombreUsuarioAdmin = req.user?.username;
 
@@ -117,11 +115,9 @@ export class CorteController {
       return res.status(200).json(resumen);
     } catch (error: any) {
       console.log(error);
-      return res
-        .status(500)
-        .json({
-          message: error.message || "Hubo un error al buscar el resumen",
-        });
+      return res.status(500).json({
+        message: error.message || "Hubo un error al buscar el resumen",
+      });
     }
   };
 
@@ -136,11 +132,9 @@ export class CorteController {
       return res.status(200).json(resumen);
     } catch (error: any) {
       console.log(error);
-      return res
-        .status(500)
-        .json({
-          message: error.message || "Hubo un error al buscar el resumen",
-        });
+      return res.status(500).json({
+        message: error.message || "Hubo un error al buscar el resumen",
+      });
     }
   };
 
@@ -151,11 +145,9 @@ export class CorteController {
       return res.status(200).json(resumen);
     } catch (error: any) {
       console.log(error);
-      return res
-        .status(500)
-        .json({
-          message: error.message || "Hubo un error al buscar el resumen",
-        });
+      return res.status(500).json({
+        message: error.message || "Hubo un error al buscar el resumen",
+      });
     }
   };
 
@@ -173,11 +165,9 @@ export class CorteController {
       return res.status(200).json(resumen);
     } catch (error: any) {
       console.log(error);
-      return res
-        .status(500)
-        .json({
-          message: error.message || "Hubo un error al buscar el resumen",
-        });
+      return res.status(500).json({
+        message: error.message || "Hubo un error al buscar el resumen",
+      });
     }
   };
 
@@ -188,11 +178,9 @@ export class CorteController {
       return res.status(200).json(resumen);
     } catch (error: any) {
       console.log(error);
-      return res
-        .status(500)
-        .json({
-          message: error.message || "Hubo un error al buscar el resumen",
-        });
+      return res.status(500).json({
+        message: error.message || "Hubo un error al buscar el resumen",
+      });
     }
   };
 
@@ -203,11 +191,9 @@ export class CorteController {
       return res.status(200).json(resumen);
     } catch (error: any) {
       console.log(error);
-      return res
-        .status(500)
-        .json({
-          message: error.message || "Hubo un error al buscar el resumen",
-        });
+      return res.status(500).json({
+        message: error.message || "Hubo un error al buscar el resumen",
+      });
     }
   };
 
@@ -221,11 +207,9 @@ export class CorteController {
       return res.status(200).json(resumen);
     } catch (error: any) {
       console.log(error);
-      return res
-        .status(500)
-        .json({
-          message: error.message || "Hubo un error al buscar el resumen",
-        });
+      return res.status(500).json({
+        message: error.message || "Hubo un error al buscar el resumen",
+      });
     }
   };
 
@@ -236,11 +220,9 @@ export class CorteController {
       return res.status(200).json(resumen);
     } catch (error: any) {
       console.log(error);
-      return res
-        .status(500)
-        .json({
-          message: error.message || "Hubo un error al buscar el resumen",
-        });
+      return res.status(500).json({
+        message: error.message || "Hubo un error al buscar el resumen",
+      });
     }
   };
 
@@ -251,11 +233,9 @@ export class CorteController {
       return res.status(200).json(resumen);
     } catch (error: any) {
       console.log(error);
-      return res
-        .status(500)
-        .json({
-          message: error.message || "Hubo un error al buscar el resumen",
-        });
+      return res.status(500).json({
+        message: error.message || "Hubo un error al buscar el resumen",
+      });
     }
   };
 
@@ -267,11 +247,9 @@ export class CorteController {
       return res.status(200).json(resumen);
     } catch (error: any) {
       console.log(error);
-      return res
-        .status(500)
-        .json({
-          message: error.message || "Hubo un error al buscar el resumen",
-        });
+      return res.status(500).json({
+        message: error.message || "Hubo un error al buscar el resumen",
+      });
     }
   };
 
@@ -282,11 +260,9 @@ export class CorteController {
       return res.status(200).json(resumen);
     } catch (error: any) {
       console.log(error);
-      return res
-        .status(500)
-        .json({
-          message: error.message || "Hubo un error al buscar el resumen",
-        });
+      return res.status(500).json({
+        message: error.message || "Hubo un error al buscar el resumen",
+      });
     }
   };
 
@@ -297,11 +273,9 @@ export class CorteController {
       return res.status(200).json(resumen);
     } catch (error: any) {
       console.log(error);
-      return res
-        .status(500)
-        .json({
-          message: error.message || "Hubo un error al buscar el resumen",
-        });
+      return res.status(500).json({
+        message: error.message || "Hubo un error al buscar el resumen",
+      });
     }
   };
 
@@ -313,11 +287,59 @@ export class CorteController {
       return res.status(200).json(resumen);
     } catch (error: any) {
       console.log(error);
-      return res
+      return res.status(500).json({
+        message: error.message || "Hubo un error al buscar el resumen",
+      });
+    }
+  };
+
+  public obtenerPrecioCorte = async (req: Request, res: Response) => {
+    try {
+      const precioCorte = await corteService.obtenerPrecioCorteActivo();
+      return res.status(200).json(precioCorte);
+    } catch (error: any) {
+      console.log(error);
+      return res.status(500).json({
+        message: error.message || "Hubo un error al buscar el precio del corte",
+      });
+    }
+  };
+
+  public pdfResumenMensual = async (req: Request, res: Response) => {
+    try {
+      const mes = Number(req.query.mes);
+      if (isNaN(mes) || mes < 0 || mes > 11) {
+        return res
+          .status(400)
+          .json({ error: "Mes inválido (debe ser de 0 a 11)" });
+      }
+
+      await corteService.generarPdfResumenMensual(mes, res);
+    } catch (error: any) {
+      console.error(error);
+      res
         .status(500)
-        .json({
-          message: error.message || "Hubo un error al buscar el resumen",
-        });
+        .json({ error: "Error al generar el PDF del resumen mensual" });
+    }
+  };
+
+  public pdfResumenMensualBarbero = async (req: Request, res: Response) => {
+    try {
+      const idBarbero = Number(req.params.idBarbero);
+      const mes = Number(req.params.mes);
+
+      if (isNaN(mes) || mes < 0 || mes > 11) {
+        return res
+          .status(400)
+          .json({ error: "Mes inválido (debe ser de 0 a 11)" });
+      }
+
+      await corteService.generarPdfResumenBarberoMensual(idBarbero, mes, res);
+    } catch (error: any) {
+      console.error(error);
+      res.status(500).json({
+        error: "Error al generar el PDF del resumen mensual del barbero",
+      });
     }
   };
 }

@@ -8,6 +8,7 @@ export function Resumen() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [mes, setMes] = useState(() => new Date().getMonth());
   const [barberoExpandido, setBarberoExpandido] = useState(null);
+  const [precioCorte, setPrecioCorte] = useState(null);
 
   const [urlCortes, setUrlCortes] = useState(
     `http://localhost:3000/api/corte/cortesDelMes?mes=${mes}`,
@@ -77,8 +78,39 @@ export function Resumen() {
     "Diciembre",
   ];
 
+  const descargarPdfMensual = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/corte/pdfResumen?mes=${mes}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+
+      if (!response.ok) throw new Error("Error al descargar el PDF");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Resumen_Mensual_${mesesNombres[mes]}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo generar el PDF");
+    }
+  };
+
   return (
     <main className="w-full bg-slate-100 min-h-screen p-3 sm:p-5 text-slate-800">
+      <div>
+        <button onClick={descargarPdfMensual}>GENERAR PDF</button>
+      </div>
       <div className="mx-auto w-full max-w-7xl space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
           <div>
@@ -214,18 +246,12 @@ export function Resumen() {
             </section>
 
             <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xs">
-              <div className="border-b border-slate-100 px-4 py-3 flex justify-between items-center bg-slate-50/50">
-                <div>
-                  <h2 className="text-sm font-bold text-slate-800">
-                    Histórico de Cortes
-                  </h2>
-                  <p className="text-[11px] text-slate-500">
-                    Registros individuales correspondientes al mes de{" "}
-                    {mesesNombres[mes]}
-                  </p>
-                </div>
-              </div>
-              <TablaCortes url={urlCortes} onSeActualizo={actualizarDatos} />
+              <TablaCortes
+                url={urlCortes}
+                onSeActualizo={actualizarDatos}
+                titulo="Histórico de Cortes"
+                subtitulo={`Registros individuales correspondientes al mes de ${mesesNombres[mes]}`}
+              />
             </section>
           </div>
 
@@ -291,10 +317,10 @@ export function Resumen() {
                       </button>
 
                       {estaAbierto && (
-                        <div className="px-3.5 pb-3.5 pt-1 bg-slate-50/80 border-t border-slate-100/60 grid grid-cols-2 gap-2">
+                        <div className="px-3.5 pb-3.5 pt-1 bg-slate-50/80 border-t border-slate-100/60 grid grid-cols-3 gap-2">
                           <div className="rounded-md border border-slate-200/80 bg-white p-2.5 shadow-2xs">
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                              Cortes Totales
+                              Cortes
                             </span>
                             <span className="text-sm font-extrabold text-slate-800 mt-0.5 block">
                               {barbero.cantidadCortes ?? 0}
@@ -302,13 +328,21 @@ export function Resumen() {
                           </div>
                           <div className="rounded-md border border-slate-200/80 bg-white p-2.5 shadow-2xs">
                             <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-wider block">
-                              Comisión Barbero
+                              Comisión
                             </span>
                             <span className="text-sm font-extrabold text-indigo-600 mt-0.5 block">
                               $
                               {barbero.comisionBarbero?.toLocaleString(
                                 "es-AR",
                               ) ?? 0}
+                            </span>
+                          </div>
+                          <div className="rounded-md border border-slate-200/80 bg-white p-2.5 shadow-2xs">
+                            <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">
+                              Propina
+                            </span>
+                            <span className="text-sm font-extrabold text-amber-700 mt-0.5 block">
+                              ${barbero.propina?.toLocaleString("es-AR") ?? 0}
                             </span>
                           </div>
                         </div>

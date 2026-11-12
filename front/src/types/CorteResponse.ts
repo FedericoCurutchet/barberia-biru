@@ -6,6 +6,7 @@ export interface CorteResponse {
   comisionBarbero: number;
   metodoPago: string;
   hora: Date;
+  propina: number;
   barbero: {
     id: number;
     nombre: string;

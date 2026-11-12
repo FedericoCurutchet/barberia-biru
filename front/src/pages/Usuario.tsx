@@ -18,13 +18,11 @@ export function Usuario() {
   const [mostrarRegistros, setMostrarRegistros] = useState<boolean>(false);
   const [usuarioElminar, setUsuarioEliminar] = useState(0);
 
-  // 1. Tipamos correctamente el estado como un arreglo de Registros
   const [registros, setRegistros] = useState<Registro[]>([]);
 
   useEffect(() => {
     setLoading(true);
 
-    // Cargar usuarios
     fetch("http://localhost:3000/api/usuarios", {
       headers: {
         "Content-Type": "application/json",
@@ -40,7 +38,6 @@ export function Usuario() {
       .catch((err) => setError(err.message || "Error al cargar los usuarios"))
       .finally(() => setLoading(false));
 
-    // Cargar registros de auditoría reales
     fetch("http://localhost:3000/api/registros", {
       headers: {
         "Content-Type": "application/json",
@@ -94,7 +91,6 @@ export function Usuario() {
   return (
     <main className="w-full bg-slate-100 min-h-screen p-4 md:p-6 text-slate-800">
       <div className="mx-auto w-full max-w-7xl space-y-6">
-        {/* Encabezado y Botón de Registro */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-2xs">
           <div>
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900">
@@ -117,7 +113,6 @@ export function Usuario() {
           </button>
         </div>
 
-        {/* Listado en Grid de Tarjetas */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {loading ? (
             <div className="col-span-full py-12 text-center text-slate-400 text-xs bg-white rounded-xl border border-slate-200">
@@ -158,14 +153,12 @@ export function Usuario() {
                       </div>
                     </div>
 
-                    {/* Badge de Rol */}
                     <span className="inline-flex items-center rounded-md bg-slate-100 px-2.5 py-0.5 text-[10px] font-semibold text-slate-700 ring-1 ring-inset ring-slate-500/10">
                       {usuario.rol}
                     </span>
                   </div>
                 </div>
 
-                {/* Botones de Acción */}
                 <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
                   <button
                     type="button"
@@ -192,7 +185,6 @@ export function Usuario() {
           )}
         </div>
 
-        {/* Sección de Historial de Registros */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden transition-all">
           <button
             type="button"
@@ -236,7 +228,6 @@ export function Usuario() {
             </div>
           </button>
 
-          {/* Contenido Desplegable de Registros Reales */}
           {mostrarRegistros && (
             <div className="border-t border-slate-100 p-4 bg-slate-50/50 space-y-2.5">
               {registros.length === 0 ? (

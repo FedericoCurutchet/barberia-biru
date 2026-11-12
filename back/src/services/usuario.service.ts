@@ -127,12 +127,17 @@ export class UsuarioService {
   }
 
   async borrarUsuario(
-    id: number | string,
+    id: number,
     nombre_usuario: string | undefined,
     contrasena: string,
   ) {
     if (!(await this.verificarContraseniaAdmin(nombre_usuario, contrasena))) {
       throw new Error("Contraseña Admin Invalida");
+    }
+    const usuarioVerificar = await this.usuarioRepository.obtenerUsuario(id);
+
+    if (usuarioVerificar?.rol == "ADMINISTRADOR") {
+      throw new Error("No podes borrar al administrador, burro");
     }
     const numericId = Number(id);
     const usuarioBorrado =
