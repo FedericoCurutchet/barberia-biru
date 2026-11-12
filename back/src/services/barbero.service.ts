@@ -22,11 +22,10 @@ export class BarberoService {
     contrasena_admin: string,
     nombre_usuario_admin?: string,
   ) {
-    if (
-      !this.verificarContraseniaAdmin(nombre_usuario_admin, contrasena_admin)
-    ) {
-      throw new Error("Error datos administrador");
-    }
+    await this.verificarContraseniaAdmin(
+      nombre_usuario_admin,
+      contrasena_admin,
+    );
     const result = await this.barberoRepository.crearBarbero(nombre, comision);
 
     if (!result) {
@@ -58,11 +57,10 @@ export class BarberoService {
     nombre?: string,
     comision?: Decimal,
   ) {
-    if (
-      !this.verificarContraseniaAdmin(nombre_usuario_admin, contrasena_admin)
-    ) {
-      throw new Error("Error datos administrador");
-    }
+    await this.verificarContraseniaAdmin(
+      nombre_usuario_admin,
+      contrasena_admin,
+    );
     const result = await this.barberoRepository.editarBarbero(
       id,
       activo,
@@ -95,11 +93,10 @@ export class BarberoService {
     nombre_usuario_admin: string | undefined,
     contrasena_admin: string,
   ) {
-    if (
-      !this.verificarContraseniaAdmin(nombre_usuario_admin, contrasena_admin)
-    ) {
-      throw new Error("Error datos administrador");
-    }
+    await this.verificarContraseniaAdmin(
+      nombre_usuario_admin,
+      contrasena_admin,
+    );
     const result = await this.barberoRepository.borrarBarbero(id);
 
     if (!result) {
@@ -143,6 +140,10 @@ export class BarberoService {
     nombre_usuario: string | undefined,
     contrasena: string,
   ) {
+    if (!nombre_usuario) {
+      throw new Error("Credenciales inválidas");
+    }
+
     const usuario =
       await this.usuarioRepository.obtenerUsuarioPorNombre(nombre_usuario);
 
@@ -152,6 +153,7 @@ export class BarberoService {
 
     const isMatch = await bcrypt.compare(contrasena, usuario.contrasena);
     console.log("Contra comparacion " + isMatch);
+
     if (!isMatch) {
       throw new Error("Credenciales inválidas");
     }

@@ -6,6 +6,7 @@ export interface CorteItem {
   comisionBarbero: number;
   metodoPago: string;
   hora: Date;
+  propina: number;
   barbero: {
     nombre: string;
     id: number;

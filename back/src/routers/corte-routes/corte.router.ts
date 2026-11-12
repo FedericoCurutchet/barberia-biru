@@ -17,6 +17,22 @@ corteRouter.put(
   corteController.editarCorte.bind(corteController),
 );
 corteRouter.get(
+  "/precioCorte",
+  [verifyToken],
+  corteController.obtenerPrecioCorte.bind(corteController),
+);
+
+corteRouter.get(
+  "/pdfResumen",
+  [verifyToken],
+  corteController.pdfResumenMensual.bind(corteController),
+);
+corteRouter.get(
+  "/pdfResumenBarbero/:idBarbero/:mes",
+  [verifyToken],
+  corteController.pdfResumenMensual.bind(corteController),
+);
+corteRouter.get(
   "/resumenBarberos",
   [verifyToken],
   corteController.obtenerResumenBarbero.bind(corteController),

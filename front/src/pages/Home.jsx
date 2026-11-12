@@ -127,8 +127,8 @@ export function Home() {
           </div>
         </div>
 
-        <section className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs transition-all hover:shadow-xs">
+        <section className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs transition-all hover:shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                 Ingresos Totales
@@ -149,7 +149,7 @@ export function Home() {
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs transition-all hover:shadow-xs">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs transition-all hover:shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                 Monto Barbería
@@ -170,7 +170,7 @@ export function Home() {
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs transition-all hover:shadow-xs">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-2xs transition-all hover:shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                 Comisiones Barberos
@@ -193,18 +193,13 @@ export function Home() {
         </section>
 
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_350px]">
-          <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xs">
-            <div className="border-b border-slate-100 px-4 py-3 flex justify-between items-center bg-slate-50/50">
-              <div>
-                <h2 className="text-sm font-bold text-slate-800">
-                  Listado de Cortes
-                </h2>
-                <p className="text-[11px] text-slate-500">
-                  Transacciones registradas en el período seleccionado
-                </p>
-              </div>
-            </div>
-            <TablaCortes url={urlCortes} onSeActualizo={actualizarDatos} />
+          <section className="rounded-xl border border-slate-200 bg-white shadow-2xs">
+            <TablaCortes
+              url={urlCortes}
+              onSeActualizo={actualizarDatos}
+              titulo="Listado de Cortes"
+              subtitulo="Transacciones registradas"
+            />
           </section>
 
           <section className="h-fit rounded-xl border border-slate-200 bg-white shadow-2xs overflow-hidden sticky top-5">
@@ -272,7 +267,7 @@ export function Home() {
                       </button>
 
                       {estaAbierto && (
-                        <div className="px-3.5 pb-3.5 pt-1 bg-slate-50/80 border-t border-slate-100/60 grid grid-cols-2 gap-2">
+                        <div className="px-3.5 pb-3.5 pt-1 bg-slate-50/80 border-t border-slate-100/60 grid grid-cols-3 gap-2">
                           <div className="rounded-md border border-slate-200/80 bg-white p-2.5 shadow-2xs">
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                               Cortes
@@ -283,10 +278,19 @@ export function Home() {
                           </div>
                           <div className="rounded-md border border-slate-200/80 bg-white p-2.5 shadow-2xs">
                             <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-wider block">
-                              Monto Generado
+                              Monto Gen.
                             </span>
                             <span className="text-sm font-extrabold text-indigo-600 mt-0.5 block">
                               ${barbero.monto?.toLocaleString("es-AR") ?? 0}
+                            </span>
+                          </div>
+
+                          <div className="rounded-md border border-slate-200/80 bg-white p-2.5 shadow-2xs">
+                            <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">
+                              Propina
+                            </span>
+                            <span className="text-sm font-extrabold text-amber-700 mt-0.5 block">
+                              ${barbero.propina?.toLocaleString("es-AR") ?? 0}
                             </span>
                           </div>
                         </div>

@@ -20,6 +20,7 @@ export function FormularioEditar({
   const [barberos, setBarberos] = useState<Barbero[]>([]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDataFormulario(datosForm);
   }, [datosForm]);
 
@@ -60,6 +61,7 @@ export function FormularioEditar({
       monto: Number(formData.get("monto")),
       metodoPago: formData.get("metodoPago"),
       barberoId: Number(formData.get("barbero")),
+      propina: Number(formData.get("propina")),
       hora: formatearHora(
         formData.get("hora") as string,
         formData.get("dia") as string,
@@ -131,6 +133,7 @@ export function FormularioEditar({
       comisionBarbero: element.comisionBarbero,
       metodoPago: element.metodoPago,
       hora: new Date(element.hora),
+      propina: element.propina,
       barbero: {
         nombre: element.barbero.nombre,
         id: element.barbero.id,
@@ -243,6 +246,30 @@ export function FormularioEditar({
                   min="0"
                   required
                   defaultValue={dataFormulario.monto ?? ""}
+                  className="w-full rounded-lg border border-slate-300 py-2 pl-7 pr-3 text-xs font-bold text-slate-800 shadow-2xs focus:border-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-800"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="propina"
+                className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5"
+              >
+                Propina
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                  $
+                </span>
+                <input
+                  type="number"
+                  name="propina"
+                  id="propina"
+                  placeholder="0"
+                  min="0"
+                  required
+                  defaultValue={dataFormulario.propina ?? ""}
                   className="w-full rounded-lg border border-slate-300 py-2 pl-7 pr-3 text-xs font-bold text-slate-800 shadow-2xs focus:border-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-800"
                 />
               </div>

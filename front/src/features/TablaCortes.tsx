@@ -8,9 +8,13 @@ import { FormularioEditar } from "./FormularioEditar";
 export function TablaCortes({
   url,
   onSeActualizo,
+  titulo,
+  subtitulo,
 }: {
   url: string;
   onSeActualizo: (seActualizo: boolean) => void;
+  titulo: string;
+  subtitulo: string;
 }) {
   const [estaAbierto, setEstaAbierto] = useState(false);
   const [data, setData] = useState<CorteItem[]>([]);
@@ -39,6 +43,7 @@ export function TablaCortes({
             monto: element.monto,
             montoBarberia: element.montoBarberia,
             comisionBarbero: element.comisionBarbero,
+            propina: element.propina,
             metodoPago: element.metodoPago,
             hora: new Date(element.hora),
             barbero: {
@@ -60,6 +65,7 @@ export function TablaCortes({
       monto: element.monto,
       montoBarberia: element.montoBarberia,
       comisionBarbero: element.comisionBarbero,
+      propina: element.propina,
       metodoPago: element.metodoPago,
       hora: new Date(element.hora),
       barbero: {
@@ -79,6 +85,7 @@ export function TablaCortes({
       monto: element.monto,
       montoBarberia: element.montoBarberia,
       comisionBarbero: element.comisionBarbero,
+      propina: element.propina,
       metodoPago: element.metodoPago,
       hora: new Date(element.hora),
       barbero: {
@@ -90,6 +97,7 @@ export function TablaCortes({
     setData((prevData) =>
       prevData.map((c) => (c.id === nuevoCorteItem.id ? nuevoCorteItem : c)),
     );
+    onSeActualizo(true);
   };
 
   function borrarElemento(id: number) {
@@ -114,6 +122,7 @@ export function TablaCortes({
     if (corteAEditar) {
       setCorteSeleccionado(corteAEditar);
       setIsModalOpen(true);
+      onSeActualizo(true);
     }
   };
 
@@ -133,12 +142,8 @@ export function TablaCortes({
     <div className="w-full bg-white">
       <div className="border-b border-slate-100 px-4 py-3 sm:px-5 flex items-center justify-between bg-slate-50/50">
         <div>
-          <h3 className="text-sm font-bold text-slate-800">
-            Cortes Realizados
-          </h3>
-          <p className="text-[11px] text-slate-500">
-            Historial de registros y transacciones
-          </p>
+          <h3 className="text-sm font-bold text-slate-800">{titulo}</h3>
+          <p className="text-[11px] text-slate-500">{subtitulo}</p>
         </div>
 
         <button
@@ -166,6 +171,7 @@ export function TablaCortes({
               <th className="px-4 py-2.5">Monto Total</th>
               <th className="px-4 py-2.5">Barbería</th>
               <th className="px-4 py-2.5">Comisión</th>
+              <th className="px-4 py-2.5">Propina</th> {/* <-- Nueva columna */}
               <th className="px-4 py-2.5">Método Pago</th>
               <th className="px-4 py-2.5">Hora</th>
               <th className="px-4 py-2.5">Día</th>
@@ -177,7 +183,7 @@ export function TablaCortes({
             {loading ? (
               <tr>
                 <td
-                  colSpan={9}
+                  colSpan={10}
                   className="px-4 py-8 text-center text-slate-400"
                 >
                   <div className="flex items-center justify-center gap-2">
@@ -189,7 +195,7 @@ export function TablaCortes({
             ) : error ? (
               <tr>
                 <td
-                  colSpan={9}
+                  colSpan={10}
                   className="px-4 py-6 text-center text-red-500 font-medium"
                 >
                   {error}
@@ -198,7 +204,7 @@ export function TablaCortes({
             ) : data.length === 0 ? (
               <tr>
                 <td
-                  colSpan={9}
+                  colSpan={10}
                   className="px-4 py-8 text-center text-slate-400"
                 >
                   No hay cortes registrados en este período.
@@ -233,6 +239,10 @@ export function TablaCortes({
                     {new Intl.NumberFormat("de-DE").format(
                       corte.comisionBarbero,
                     )}
+                  </td>
+
+                  <td className="px-4 py-3 text-amber-600 font-semibold">
+                    ${new Intl.NumberFormat("de-DE").format(corte.propina ?? 0)}
                   </td>
                   <td className="px-4 py-3">
                     <span
